@@ -21,18 +21,6 @@ const ImageChooseSound = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // Khi _id hoặc activityId thay đổi, reset dữ liệu
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
-  //   setIsCorrect(false);
-  //   localStorage.removeItem(`selected-${_id}-${activityId}`);
-  // }, [activityId]);
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
-  //   setIsCorrect(false);
-  // }, [_id]);
   useEffect(() => {
     const savedSelected = localStorage.getItem(`selected-${_id}-${activityId}`);
     if (savedSelected) {
@@ -46,7 +34,7 @@ const ImageChooseSound = ({
   };
 
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       // setIsCorrect(selected === answer);
       onUserSelect(_id, type, selected, selected === answer, score);
       localStorage.removeItem(`selected-${_id}-${activityId}`);
@@ -112,14 +100,6 @@ const ImageChooseSound = ({
               </OptionButton>
             );
           })}
-          {/* <ButtonRow>
-            <CheckButton
-              onClick={checkAnswer}
-              disabled={!selected || hasChecked}
-            >
-              Kiểm tra
-            </CheckButton>
-          </ButtonRow> */}
         </OptionsContainer>
       </Content>
       {isReview && (

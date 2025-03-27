@@ -25,19 +25,7 @@ const SentenceText = ({
       setSelectedWords(newSelection);
     }
   };
-  // useEffect(() => {
-  //   // Khi activityId thay đổi, reset lại trạng thái
-  //   setSelectedWords([]);
-  //   setHasChecked(false);
-  //   setFeedback("");
-  //   localStorage.removeItem(`selectedWords-${_id}-${activityId}`);
-  // }, [activityId]); // Lắng nghe cả _id và activityId
-  // useEffect(() => {
-  //   // Khi activityId thay đổi, reset lại trạng thái
-  //   setSelectedWords([]);
-  //   setHasChecked(false);
-  //   setFeedback("");
-  // }, [_id]); // Lắng nghe cả _id và activityId
+
   useEffect(() => {
     if (isReview && userAnswer) {
       setSelectedWords(userAnswer.split(" "));
@@ -45,7 +33,7 @@ const SentenceText = ({
     }
   }, [isReview, userAnswer]);
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       onUserSelect(
         _id,
         type,
@@ -72,14 +60,6 @@ const SentenceText = ({
       setFeedback(`❌ Sai! Đáp án đúng: "${answer}"`);
     }
   };
-  // const checkAnswer = () => {
-  //   setHasChecked(true);
-  //   alert(
-  //     selectedWords.join(" ") === answer
-  //       ? "✅ Đúng!"
-  //       : `❌ Sai! \nĐáp án: ${answer}`
-  //   );
-  // };
 
   const resetWords = () => {
     setSelectedWords([]);

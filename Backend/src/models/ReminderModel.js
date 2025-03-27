@@ -8,7 +8,7 @@ const reminderSchema = new mongoose.Schema(
     // },
     learningGoalId: {
       type: Schema.Types.ObjectId, // Dùng "Schema.Types.ObjectId" thay vì "Schema.ObjectId"
-      ref: "LearningGoadl", // Thêm ref để liên kết với bảng "Category"
+      ref: " LearningGoal", // Thêm ref để liên kết với bảng "Category"
       required: true,
     },
     reminderTitle: {

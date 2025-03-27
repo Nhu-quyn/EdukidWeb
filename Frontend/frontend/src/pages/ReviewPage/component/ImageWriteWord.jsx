@@ -21,17 +21,6 @@ const ImageWriteWord = ({
 
   const [feedback, setFeedback] = useState("");
 
-  // Khi `_id` hoặc `activityId` thay đổi, reset lại giá trị
-  // useEffect(() => {
-  //   setInputValue("");
-  //   setFeedback("");
-  //   localStorage.removeItem(localStorageKey);
-  // }, [activityId]);
-  // useEffect(() => {
-  //   setInputValue("");
-  //   setFeedback("");
-  // }, [_id]);
-  // Load dữ liệu từ `localStorage`
   useEffect(() => {
     const savedInput = localStorage.getItem(localStorageKey);
     if (savedInput) {
@@ -49,7 +38,7 @@ const ImageWriteWord = ({
 
   // Khi `isEnd`, kiểm tra đáp án & gọi `onUserSelect`
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       const isCorrect =
         inputValue.trim().toLowerCase() === String(answer).toLowerCase();
       setFeedback(

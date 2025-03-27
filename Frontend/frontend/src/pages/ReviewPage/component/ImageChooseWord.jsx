@@ -23,20 +23,6 @@ const ImageChooseWord = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // Khi `_id` hoặc `activityId` thay đổi, reset dữ liệu
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
-  //   setIsCorrect(false);
-  //   localStorage.removeItem(localStorageKey);
-  // }, [activityId]);
-  // // Khi `_id` hoặc `activityId` thay đổi, reset dữ liệu
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
-  //   setIsCorrect(false);
-  // }, [_id]);
-  // Khi `isReview` bật, lấy lại đáp án người dùng
   useEffect(() => {
     if (isReview) {
       setSelected(userAnswer);
@@ -53,7 +39,7 @@ const ImageChooseWord = ({
 
   // Khi `isEnd`, kiểm tra kết quả & gọi `onUserSelect`
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       const isCorrectAnswer = selected === answer;
       setIsCorrect(isCorrectAnswer);
       onUserSelect(_id, type, selected, selected === answer, score);

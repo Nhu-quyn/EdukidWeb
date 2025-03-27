@@ -25,17 +25,6 @@ const ListenAndTranslate = ({
 
   const [feedback, setFeedback] = useState("");
 
-  // Khi `_id` hoặc `activityId` thay đổi, reset lại giá trị
-  // useEffect(() => {
-  //   setInputValue("");
-  //   setFeedback("");
-  //   localStorage.removeItem(localStorageKey);
-  // }, [activityId]);
-  // useEffect(() => {
-  //   setInputValue("");
-  //   setFeedback("");
-  // }, [_id]);
-  // Load dữ liệu từ `localStorage`
   useEffect(() => {
     const savedInput = localStorage.getItem(localStorageKey);
     if (savedInput) {
@@ -49,7 +38,7 @@ const ListenAndTranslate = ({
     // setUserAnswer(questionId, selected === answer); // Truyền questionId và kết quả trả lời đúng/sai
   };
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       const correct = inputValue.trim().toLowerCase() === answer.toLowerCase();
       // setHasChecked(true);
       onUserSelect(_id, type, inputValue, correct, score);

@@ -46,23 +46,23 @@ const WordListenSpeak = ({
     listening,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
-  useEffect(() => {
-    setFeedback("");
-    setIsRecording(false);
-    setRecordedAnswer("");
-    localStorage.removeItem(localStorageKey);
-  }, [activityId]);
-  useEffect(() => {
-    setFeedback("");
-    setIsRecording(false);
-    setRecordedAnswer("");
-  }, [_id]);
+  // useEffect(() => {
+  //   setFeedback("");
+  //   setIsRecording(false);
+  //   setRecordedAnswer("");
+  //   localStorage.removeItem(localStorageKey);
+  // }, [activityId]);
+  // useEffect(() => {
+  //   setFeedback("");
+  //   setIsRecording(false);
+  //   setRecordedAnswer("");
+  // }, [_id]);
 
   useEffect(() => {
-    // if (isReview) {
-    const savedAnswer = localStorage.removeItem(localStorageKey);
-    if (savedAnswer) setRecordedAnswer(savedAnswer);
-    // }
+    if (isReview) {
+      const savedAnswer = localStorage.removeItem(localStorageKey);
+      if (savedAnswer) setRecordedAnswer(savedAnswer);
+    }
   }, [_id, activityId]);
   useEffect(() => {
     if (isReview) {
@@ -77,7 +77,7 @@ const WordListenSpeak = ({
     }
   }, [isReview]);
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       const finalAnswer =
         recordedAnswer && recordedAnswer.trim() !== "" ? recordedAnswer : false;
       const finalCorrect =

@@ -1,12 +1,13 @@
 const nodemailer = require("nodemailer");
-
-const sendEmail = async (to, subject, text) => {
+require("dotenv").config();
+const sendEmail = async (newSend) => {
   try {
+    const { to, subject, text } = newSend;
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "edukidswordplay@gmail.com", // Thay bằng email của bạn
-        pass: "12345678edukids", // Thay bằng mật khẩu ứng dụng
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Thay bằng mật khẩu ứng dụng
       },
     });
 

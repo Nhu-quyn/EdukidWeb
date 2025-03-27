@@ -41,7 +41,7 @@ const Translation = ({
     }
   }, [isReview, userAnswer]);
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       onUserSelect(
         _id,
         type,

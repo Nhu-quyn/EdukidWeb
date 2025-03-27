@@ -22,17 +22,7 @@ const MultipleChoice = ({
     setSelected(option);
     localStorage.setItem(`localStorageKey`, option); // Lưu giá trị vào localStorage
   };
-  // Khi `_id` hoặc `activityId` thay đổi, reset dữ liệu
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
 
-  //   localStorage.removeItem(localStorageKey);
-  // }, [activityId]);
-  // useEffect(() => {
-  //   setSelected("");
-  //   setHasChecked(false);
-  // }, [_id]);
   useEffect(() => {
     const savedSelected = localStorage.getItem(localStorageKey);
     if (savedSelected) {
@@ -48,7 +38,7 @@ const MultipleChoice = ({
   }, [isReview]);
 
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       onUserSelect(_id, type, selected, selected === answer, score);
       localStorage.removeItem(localStorageKey);
     }

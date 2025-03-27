@@ -1,6 +1,6 @@
 const LearningGoal = require("../models/LearningGoalModel");
 const Reminder = require("../models/ReminderModel");
-
+const User = require("../models/UserModel");
 const createLearningGoal = (
   userId,
   targetWords,
@@ -11,6 +11,16 @@ const createLearningGoal = (
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // console.log("userId", userId);
+      const checkUser = await User.findById(userId);
+      // console.log(checkUser);
+      if (!checkUser) {
+        return resolve({
+          status: "ERR",
+          message: "User không tồn tại",
+        });
+      }
+
       // Kiểm tra xem mục tiêu học tập của user đã tồn tại chưa
       const existingGoal = await LearningGoal.findOne({ userId });
 
@@ -21,17 +31,18 @@ const createLearningGoal = (
           data: existingGoal,
         });
       }
+      console.log("startDate:", startDate); // Kiểm tra giá trị của startDate
+      console.log("Loại của startDate:", typeof startDate);
 
-      // Tạo mới mục tiêu học tập
       const newGoal = await LearningGoal.create({
-        userId,
+        userId: checkUser._id,
         targetWords,
         targetTimes,
         repeatDaily: repeat,
-        startDate,
-        status,
+        startDate: startDate ? new Date(startDate) : null, // Chuyển thành Date object
+        status: status,
       });
-
+      console.log(newGoal);
       // Danh sách lời nhắc cần tạo
       const reminders = [];
 
@@ -95,7 +106,52 @@ const createLearningGoal = (
     }
   });
 };
+const getAllLearningGoal = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const learningGoals = await LearningGoal.find({ userId });
+      resolve({
+        status: "OK",
+        message: "Lấy danh sách mục tiêu học tập thành công",
+        data: learningGoals,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message || "Lỗi hệ thống",
+      });
+    }
+  });
+};
+const updateStatus = (id, status) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const updatedGoal = await LearningGoal.findByIdAndUpdate(
+        id,
+        {
+          status,
+          ...(status === "paused" && { repeat: false }), // Nếu status là "paused", cập nhật repeat = false
+        },
+        { new: true }
+      );
 
+      resolve({
+        status: "OK",
+        message: "Cập nhật trạng thái mục tiêu học tập thành công",
+        data: updatedGoal,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message || "Lỗi hệ thống",
+      });
+    }
+  });
+};
+
+//check trước rồi hẳn tạo (check Date đến chưa => tạo reminders để gửi mail)
 module.exports = {
   createLearningGoal,
+  getAllLearningGoal,
+  updateStatus,
 };

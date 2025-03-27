@@ -20,16 +20,6 @@ const FillBlank = ({
   const [userInput, setUserInput] = useState(userAnswer || ""); // Sử dụng câu trả lời mặc định từ parent component
   const [feedback, setFeedback] = useState("");
   const [isCorrect, setIsCorrect] = useState(false);
-
-  // Reset input nếu isReset = true
-  // useEffect(() => {
-  //   // if (isReset) {
-  //   setUserInput("");
-  //   setFeedback(""); // Reset luôn feedback
-  //   // }
-  //   // localStorage.removeItem(`userInput-${_id}-${activityId}`);
-  // }, [activityId]);
-
   // Kiểm tra đáp án tự động nếu isReview = true
   useEffect(() => {
     // if (!_id || !activityId) return;
@@ -46,7 +36,7 @@ const FillBlank = ({
     }
   }, [_id, isReview]);
   useEffect(() => {
-    if (isEnd) {
+    if (isEnd && !isReview) {
       check();
       onUserSelect(_id, type, userInput, isCorrect, score);
     }
@@ -71,18 +61,6 @@ const FillBlank = ({
       setIsCorrect(false);
     }
   };
-  // Hàm cập nhật câu trả lời khi người dùng nhập
-  // const handleInputChange = (e) => {
-  //   setUserInput(e.target.value);
-
-  //   // questionId,
-  //   // type,
-  //   // selectedAnswer,
-  //   // isCorrect,
-  //   // score
-  //   // setUserAnswer(questionId, e.target.value); // Gọi hàm để cập nhật câu trả lời vào parent component
-  // };
-
   const handleInputChange = (e) => {
     const value = e.target.value;
     setUserInput(value);
