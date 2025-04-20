@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const Translation = ({
   word,
   answer,
@@ -8,6 +8,7 @@ const Translation = ({
   isEnd,
   _id,
   type,
+  questionContent,
   onUserSelect,
   questionLevel,
   score,
@@ -19,10 +20,15 @@ const Translation = ({
   const [feedback, setFeedback] = useState("");
 
   const checkTranslation = () => {
-    if (userTranslation.trim().toLowerCase() === answer.toLowerCase()) {
-      setFeedback(`✅ Đúng! Đáp án: ${answer}`);
+    // console.log(userTranslation);
+    if (userAnswer === "") {
+      setFeedback(`❌ Bạn không có câu trả lời! Đáp án: ${answer}`);
     } else {
-      setFeedback(`❌ Sai! Đáp án: ${answer}`);
+      if (userAnswer.trim().toLowerCase() === answer.toLowerCase()) {
+        setFeedback(`✅ Đúng! Đáp án: ${answer}`);
+      } else {
+        setFeedback(`❌ Sai! Đáp án: ${answer}`);
+      }
     }
   };
   useEffect(() => {
@@ -35,12 +41,17 @@ const Translation = ({
     setUserTranslation("");
   }, [_id]);
   useEffect(() => {
-    if (isReview && userAnswer) {
+    // console.log(userAnswer);
+    if (isReview) {
       setUserTranslation(userAnswer);
-      checkTranslation(userAnswer);
+      // checkTranslation();
+      // if (userTranslation) {
+      checkTranslation("" || userAnswer);
+      // }
     }
   }, [isReview, userAnswer]);
   useEffect(() => {
+    console.log("answer", answer);
     if (isEnd && !isReview) {
       onUserSelect(
         _id,
@@ -59,12 +70,17 @@ const Translation = ({
   };
   return (
     <Container>
-      <Title>Dịch câu sau:</Title>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      <Question>{questionContent}</Question>
       <Sentence>{word}</Sentence>
       <Input
         type="text"
         value={userTranslation}
         onChange={handleInputChange}
+        disabled={isReview}
+        // readOnly={isReview} // Giữ khung nhưng không cho nhập
         placeholder="Nhập bản dịch..."
       />
       {/* <CheckButton onClick={checkTranslation}>Kiểm tra</CheckButton> */}
@@ -79,6 +95,7 @@ export default Translation;
 
 const Container = styled.div`
   background: #f4f4f4;
+  // position: relative
   border-radius: 12px;
   padding: 24px;
   max-width: 500px;

@@ -52,3 +52,25 @@ export const IconWrapper = styled.div`
     background-color: #ffa726;
   }
 `;
+export const LevelBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: ${(props) =>
+    props.level === "easy"
+      ? "#4CAF50"
+      : props.level === "medium"
+      ? "#FFC107"
+      : "#F44336"};
+  width: fit-content;
+`;
+export const levelDetails = {
+  easy: { label: "Dễ 🌱", points: 1 },
+  medium: { label: "Trung bình 🌟", points: 2 },
+  hard: { label: "Khó 🔥", points: 3 },
+};

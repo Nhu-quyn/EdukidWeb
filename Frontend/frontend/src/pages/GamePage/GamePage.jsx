@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import ImageMatch from "./components/ImageMatch";
@@ -15,6 +15,8 @@ import * as QuestionService from "../../services/QuestionService"; // Import ser
 import * as UserService from "../../services/UserService";
 import ImageBackgroundGame from "../../assets/backgroundgame2.jpg";
 import { setRank, addAnswerWithLogin } from "../../store/gameSlice";
+import music from "../../mp3/kids-happy-music-320636.mp3";
+
 // Hiệu ứng rung lắc mềm mại
 const shakeAnimation = keyframes`
   0% { transform: translateX(0); }
@@ -59,7 +61,7 @@ const Header = styled.div`
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   font-family: "Poppins", sans-serif;
   animation: ${shakeAnimation} 2s ease-in-out infinite;
 `;
@@ -110,6 +112,9 @@ const FinishButton = styled.button`
 `;
 
 const GamePage = () => {
+  const audioRef = useRef(null);
+  const [isInteracted, setIsInteracted] = useState(false);
+
   const { topicId } = useParams(); // Lấy topicId từ URL
   const [gameQuestions, setGameQuestions] = useState([]);
   const dispatch = useDispatch();
@@ -155,6 +160,21 @@ const GamePage = () => {
       console.error("Lỗi khi lấy danh sách câu hỏi:", error);
     }
   };
+  // const handleUserInteraction = () => {
+  //   if (!isInteracted) {
+  //     const audio = audioRef.current;
+  //     if (audio) {
+  //       audio.muted = false;
+  //       audio.volume = 0.25; // Set âm lượng 30%
+  //       audio
+  //         .play()
+  //         .then(() => setIsInteracted(true))
+  //         .catch((err) => {
+  //           console.log("Không thể phát nhạc nền:", err);
+  //         });
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
     const getQuestions = async () => {
@@ -187,6 +207,7 @@ const GamePage = () => {
   const updateLearningProgress = async (userId, answer_questions) => {
     if (!userId) return;
     try {
+      console.log(answer_questions);
       const response = await UserService.updateLearningProgressGame(
         userId,
         answer_questions
@@ -231,41 +252,94 @@ const GamePage = () => {
     listen_choose_image: ListenChooseImage,
     audio_record: AudioRecordPage,
   };
-  return (
-    <Container>
-      <div>
-        <Header>
-          {["P", "L", "A", "Y", "G", "A", "M", "E"].map((letter, index) => (
-            <HeaderLetter key={index} color={colors[index]} index={index}>
-              {letter}
-            </HeaderLetter>
-          ))}
-        </Header>
+  const handleUserInteraction = () => {
+    if (!isInteracted) {
+      const audio = audioRef.current;
+      if (audio) {
+        // Nhẹ nhàng khởi động nhạc nền
+        audio.muted = false;
+        audio.volume = 0.1; // 25-30% volume là đủ nghe mà không lấn tiếng
+        audio
+          .play()
+          .then(() => {
+            setIsInteracted(true);
 
-        {!currentGame ? (
-          <p style={{ color: "white", fontSize: "24px" }}>
-            Không có câu hỏi nào để hiển thị
-          </p>
-        ) : (
-          (() => {
-            const GameComponent =
-              gameComponents[currentGame.questionTypeId.questionTypeId];
-            return GameComponent ? (
-              <GameComponent
-                {...currentGame}
-                onNext={nextGame}
-                onSelectAnswer={handleSelectAnswer}
-                selectedAnswer={selectedAnswer} // Truyền vào component game để xử lý hiển thị
-              />
-            ) : null;
-          })()
-        )}
-        {/* Nút kết thúc */}
-        <ButtonContainer>
-          <FinishButton onClick={handleFinishGame}>Kết thúc</FinishButton>
-        </ButtonContainer>
-      </div>
-    </Container>
+            // Delay 500ms trước khi cho phép speech hoạt động (tránh đụng nhau)
+            setTimeout(() => {
+              window.speechSynthesis.cancel(); // Đảm bảo không bị treo voice
+            }, 500);
+          })
+          .catch((err) => {
+            console.log("Không thể phát nhạc nền:", err);
+          });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    const handleTimeUpdate = () => {
+      // Lặp lại trước khi hết 5s
+      if (audio?.duration && audio.currentTime >= audio.duration - 5) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    };
+
+    audio?.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      audio?.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = () => {
+        console.log("Voices đã sẵn sàng");
+      };
+    }
+  }, []);
+
+  return (
+    <div onClick={handleUserInteraction} style={{ cursor: "pointer" }}>
+      <Container>
+        <audio ref={audioRef} src={music} loop muted />
+        <div>
+          <Header>
+            {["P", "L", "A", "Y", "G", "A", "M", "E"].map((letter, index) => (
+              <HeaderLetter key={index} color={colors[index]} index={index}>
+                {letter}
+              </HeaderLetter>
+            ))}
+          </Header>
+
+          {!currentGame ? (
+            <p style={{ color: "black", fontSize: "24px" }}>
+              Không có câu hỏi nào để hiển thị
+            </p>
+          ) : (
+            (() => {
+              const GameComponent =
+                gameComponents[currentGame.questionTypeId.questionTypeId];
+              return GameComponent ? (
+                <GameComponent
+                  {...currentGame}
+                  onNext={nextGame}
+                  onSelectAnswer={handleSelectAnswer}
+                  selectedAnswer={selectedAnswer} // Truyền vào component game để xử lý hiển thị
+                />
+              ) : null;
+            })()
+          )}
+          {/* Nút kết thúc */}
+          <ButtonContainer>
+            <FinishButton onClick={handleFinishGame}>Kết thúc</FinishButton>
+          </ButtonContainer>
+        </div>
+      </Container>
+    </div>
   );
 };
 

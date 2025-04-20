@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { List, Card, Tag, Button, Tooltip, Progress, message } from "antd";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import ImageBackground from "../../assets/backgroundgame2.jpg";
@@ -97,7 +98,16 @@ const ReviewList = () => {
 
                 {/* Hiển thị phần trăm hoàn thành nếu có */}
                 {exercise.percentComplete !== undefined && (
-                  <Progress percent={exercise.percentComplete} size="small" />
+                  <Progress
+                    percent={parseFloat(exercise.percentComplete.toFixed(2))}
+                    size="small"
+                  />
+                )}
+                {exercise.lastUpdate !== null && (
+                  <LastUpdateText>
+                    Ngày cập nhật:{" "}
+                    {dayjs(exercise.lastUpdate).format("DD/MM/YYYY")}
+                  </LastUpdateText>
                 )}
               </StyledCard>
             </List.Item>
@@ -127,6 +137,7 @@ const MainContent = styled.main`
   max-width: 1200px;
   width: 90%;
   margin: 50px auto;
+  flex: 1;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   position: relative;
@@ -189,6 +200,7 @@ const StyledCard = styled(Card)`
 const ExerciseTitle = styled.h3`
   margin-bottom: 10px;
   font-family: "Comic Sans MS", cursive, sans-serif;
+
   font-size: 1.8rem;
   color: #333;
 `;
@@ -201,4 +213,11 @@ const Description = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+`;
+const LastUpdateText = styled.p`
+  font-size: 12px;
+  color: #888;
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
 `;

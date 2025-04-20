@@ -13,6 +13,7 @@ import {
   UploadOutlined,
   LoadingOutlined,
   PictureOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 
 const { Option } = Select;
@@ -127,7 +128,7 @@ const AddVocabularyForm = ({
           </Select>
         </Form.Item>
 
-        <Form.Item label="Ảnh minh họa">
+        {/* <Form.Item label="Ảnh minh họa">
           <div style={{ textAlign: "center", marginBottom: 10 }}>
             <img
               src={imageUrl}
@@ -168,9 +169,54 @@ const AddVocabularyForm = ({
           >
             (Ảnh sẽ hiển thị sau khi tải lên thành công)
           </Text>
+        </Form.Item> */}
+        <Form.Item label="Ảnh">
+          <Upload
+            customRequest={handleUpload}
+            showUploadList={false}
+            accept="image/*"
+            disabled={loading}
+          >
+            <div
+              style={{
+                width: 200,
+                height: 150,
+                border: "1px dashed #d9d9d9",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                overflow: "hidden",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {loading ? (
+                <LoadingOutlined style={{ fontSize: 24 }} />
+              ) : imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="preview"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <PlusOutlined style={{ fontSize: 32, color: "#999" }} />
+              )}
+            </div>
+          </Upload>
         </Form.Item>
-
-        <Form.Item style={{ textAlign: "center", marginTop: 20 }}>
+        <Form.Item
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 20,
+          }}
+        >
           <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
             {initialValues ? "Cập nhật" : "Thêm mới"}
           </Button>

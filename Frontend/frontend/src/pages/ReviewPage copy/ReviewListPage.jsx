@@ -75,8 +75,11 @@ const ReviewList = ({ topicId }) => {
           }}
           dataSource={exercises}
           renderItem={(exercise) => (
-            <List.Item>
-              <StyledCard onClick={() => handleQuiz(exercise.id)}>
+            <List.Item style={{ display: "flex", justifyContent: "center" }}>
+              <StyledCard
+                onClick={() => handleQuiz(exercise.id)}
+                style={{ width: "250px" }}
+              >
                 <ExerciseTitle>{exercise.activityName}</ExerciseTitle>
                 <Tooltip title={exercise.activityDescription}>
                   <Description>
@@ -89,14 +92,13 @@ const ReviewList = ({ topicId }) => {
                   {levelMapping[exercise.activityLevel] ||
                     exercise.activityLevel}
                 </Tag>
-
-                {/* Hiển thị phần trăm hoàn thành nếu có */}
                 {exercise.percentComplete !== undefined && (
                   <Progress percent={exercise.percentComplete} size="small" />
                 )}
               </StyledCard>
             </List.Item>
           )}
+          style={{ maxWidth: "800px", margin: "0 auto" }} // Giới hạn chiều rộng
         />
       </MainContent>
       <Footer />
@@ -113,20 +115,24 @@ const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 20px;
 `;
 
 const MainContent = styled.main`
-  padding: 60px 50px;
-  background-color: rgba(255, 255, 255, 0.9);
-  max-width: 1200px;
+  padding: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  max-width: 1100px;
   width: 90%;
   margin: 50px auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+
   @media (max-width: 768px) {
     padding: 40px 20px;
     width: 95%;
@@ -135,10 +141,11 @@ const MainContent = styled.main`
 
 const Title = styled.h2`
   text-align: center;
-  margin-bottom: 20px;
   color: #ff4081;
   font-size: 3rem;
   font-family: "Comic Sans MS", cursive, sans-serif;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
@@ -154,41 +161,78 @@ const BackButton = styled(Button)`
   background: #ff4081;
   border: none;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: 12px 22px;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: background 0.3s, transform 0.2s;
+  transition: all 0.3s;
 
   &:hover {
     background: #e91e63;
-    transform: scale(1.05);
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+    padding: 10px 18px;
+  }
+`;
+
+const CardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
   }
 `;
 
 const StyledCard = styled(Card)`
-  border-radius: 15px;
-  padding: 25px;
+  width: 280px; /* Cố định chiều ngang */
+  height: 220px; /* Cố định chiều cao */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Tránh nội dung dồn về một chỗ */
+  align-items: center;
   text-align: center;
+  padding: 20px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  color: white;
   cursor: pointer;
-  transition: 0.3s;
-  font-size: 1.2rem;
-  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    width: 250px;
+    height: 200px; /* Điều chỉnh nhỏ hơn trên màn hình nhỏ */
+  }
+
+  @media (max-width: 480px) {
+    width: 220px;
+    height: 180px;
   }
 `;
 
 const ExerciseTitle = styled.h3`
   margin-bottom: 10px;
-  font-size: 1.6rem;
-  color: #333;
+  font-size: 1.8rem;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 `;
 
 const Description = styled.p`
   font-size: 1.2rem;
-  color: #666;
+  color: #fff;
   margin-bottom: 12px;
   white-space: nowrap;
   overflow: hidden;

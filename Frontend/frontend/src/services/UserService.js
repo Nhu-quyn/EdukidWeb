@@ -133,6 +133,7 @@ export const updateLearningProgressActivity = async (
   answerQuestions
 ) => {
   try {
+    console.log(answerQuestions);
     const requestData = {
       activityId: activityId,
       userId: userId,
@@ -164,6 +165,27 @@ export const getAllLeaderBoard = async () => {
     throw error;
   }
 };
-// router.put("/leader-board/get-all", userController.getAllLeaderBoard);
-// router.put("/update-learning-progress", userController.updateLearningProgress);
-// router.put("/leader-board/get-all", userController.getAllLeaderBoard);
+export const updateAvatar = async (id, avatar) => {
+  try {
+    // console.log("Đang gửi request đến:", `${api_user}/sign-up`);
+    const response = await axios.put(`${api_user}/update-avatar/${id}`, avatar);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
+export const updatePassword = async (id, currentPassword, newPassword) => {
+  try {
+    const data = {
+      currentPassword,
+      newPassword,
+    };
+    // console.log("Đang gửi request đến:", `${api_user}/sign-up`);
+    const response = await axios.put(`${api_user}/update-password/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};

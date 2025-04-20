@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { ReloadOutlined } from "@ant-design/icons";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const SentenceText = ({
   _id,
   onUserSelect,
@@ -18,20 +18,22 @@ const SentenceText = ({
   const [hasChecked, setHasChecked] = useState(false);
   const words = answer.split(" ");
   const [feedback, setFeedback] = useState("");
+  const [selectedIndexes, setSelectedIndexes] = useState([]);
+
   const [isCorrect, setIsCorrect] = useState(false);
-  const addWord = (word) => {
-    if (!isReview) {
-      const newSelection = [...selectedWords, word];
-      setSelectedWords(newSelection);
+  const addWord = (word, index) => {
+    if (!isReview && !selectedIndexes.includes(index)) {
+      setSelectedWords([...selectedWords, word]);
+      setSelectedIndexes([...selectedIndexes, index]);
     }
   };
 
   useEffect(() => {
-    if (isReview && userAnswer) {
+    if (isReview) {
       setSelectedWords(userAnswer.split(" "));
       checkAnswer();
     }
-  }, [isReview, userAnswer]);
+  }, [isReview]);
   useEffect(() => {
     if (isEnd && !isReview) {
       onUserSelect(
@@ -53,31 +55,68 @@ const SentenceText = ({
 
   const checkAnswer = (customAnswer = null) => {
     const finalAnswer = customAnswer || selectedWords.join(" ");
-    setHasChecked(true);
-    if (finalAnswer === answer) {
+    console.log(finalAnswer);
+    if (finalAnswer.trim().toLowerCase() === answer.trim().toLowerCase()) {
       setFeedback("✅ Đúng!");
     } else {
       setFeedback(`❌ Sai! Đáp án đúng: "${answer}"`);
     }
+    setHasChecked(true);
   };
 
   const resetWords = () => {
     setSelectedWords([]);
     setFeedback("");
   };
+  // const removeWordAtIndex = (index) => {
+  //   const newWords = [...selectedWords];
+  //   newWords.splice(index, 1);
+  //   setSelectedWords(newWords);
+  // };
+  const removeWordAtIndex = (i) => {
+    const newWords = [...selectedWords];
+    const newIndexes = [...selectedIndexes];
+    newWords.splice(i, 1);
+    newIndexes.splice(i, 1); // đảm bảo xóa đúng index tương ứng
+    setSelectedWords(newWords);
+    setSelectedIndexes(newIndexes);
+  };
 
   return (
     <Container>
-      <Title>Sắp xếp thành câu đúng:</Title>
-      <WordsContainer>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      <Question>Sắp xếp thành câu đúng:</Question>
+      {/* <WordsContainer>
         {words.map((word, index) => (
           <WordButton key={index} onClick={() => addWord(word)}>
             {word}
           </WordButton>
         ))}
+      </WordsContainer> */}
+      <WordsContainer>
+        {words.map((word, index) => (
+          <WordButton
+            key={index}
+            onClick={() => addWord(word, index)}
+            disabled={selectedIndexes.includes(index)}
+          >
+            {word}
+          </WordButton>
+        ))}
       </WordsContainer>
 
-      <Sentence>{selectedWords.join(" ")}</Sentence>
+      {/* 
+      <Sentence>{selectedWords.join(" ")}</Sentence> */}
+      <Sentence>
+        {selectedWords.map((word, index) => (
+          <SelectedWord key={index} onClick={() => removeWordAtIndex(index)}>
+            {word}
+            <CloseIcon className="close-icon">&times;</CloseIcon>
+          </SelectedWord>
+        ))}
+      </Sentence>
 
       {!isReview && (
         <ButtonRow>
@@ -98,6 +137,33 @@ const SentenceText = ({
 export default SentenceText;
 
 // ======== Styled Components ========
+const SelectedWord = styled.span`
+  position: relative;
+  display: inline-block;
+  margin: 0 6px;
+  padding: 6px 10px;
+  // background-color: #007bff;
+  // color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: #0056b3;
+    color: #fff;
+    .close-icon {
+      display: inline;
+    }
+  }
+`;
+
+const CloseIcon = styled.span`
+  display: none;
+  margin-left: 8px;
+  font-weight: bold;
+  color: #fff;
+`;
+
 const Feedback = styled.p`
   font-size: 16px;
   font-weight: bold;

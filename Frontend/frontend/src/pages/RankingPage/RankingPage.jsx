@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { FaCrown, FaHome, FaGamepad } from "react-icons/fa";
 import styled from "styled-components";
+// import {
+//   FaGamepad,
+//   FaBookOpen,
+//   FaUsers,
+//   FaBullhorn,
+//   FaChalkboardTeacher,
+//   FaPlayCircle,
+//   FaMedal, // cho win
+// } from "react-icons/fa";
 import { message } from "antd";
 import ImageBackground from "../../assets/backgroundgame2.jpg";
 import * as UserService from "../../services/UserService";
@@ -42,9 +52,12 @@ import * as UserService from "../../services/UserService";
 //     category: "Ôn tập",
 //   },
 // ];
+const default_image =
+  "https://toigingiuvedep.vn/wp-content/uploads/2021/06/hinh-anh-hoat-hinh-de-thuong-1.jpg";
 const DEFAULT_AVATAR = "https://i.pravatar.cc/150?img=0"; // Ảnh mặc định
 const RankingPage = () => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user?.user);
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [gameData, setGameData] = useState([]);
   const [totalData, setTotalData] = useState([]);
@@ -64,10 +77,10 @@ const RankingPage = () => {
             return leaderBoardData
               .filter((item) => item?.categoryId?.categoryName === categoryName)
               .map((item) => ({
+                userId: item?.userId?._id,
                 rank: item.rank, // Dùng rank từ API
                 username: item?.userId?.username || "Người chơi ẩn danh",
-                avatar:
-                  item?.userId?.avatar || "https://i.pravatar.cc/150?img=0",
+                avatar: item?.userId?.avatar || default_image,
                 score: item?.score || 0,
               }))
               .sort((a, b) => b.score - a.score); // Sắp xếp theo điểm
@@ -90,6 +103,10 @@ const RankingPage = () => {
 
     fetchLeaderBoard();
   }, []);
+  const myRank = filteredPlayers.find((player) => player.userId === user?._id);
+  const otherPlayers = filteredPlayers.filter(
+    (player) => player.userId !== user?._id
+  );
 
   useEffect(() => {
     switch (selectedCategory) {
@@ -128,11 +145,35 @@ const RankingPage = () => {
       {/* <Dropdown onChange={(e) => setSelectedCategory(e.target.value)}> */}
 
       <TriangleContainer>
-        {filteredPlayers.map((player) => (
+        {/* {filteredPlayers.map((player) => (
           <RankingCard key={player.rank} rank={player.rank}>
             <Avatar src={player.avatar} alt={player.username} />
             <PlayerInfo>
               <Rank>{player.rank}</Rank>
+              <PlayerName>{player.username}</PlayerName>
+              <Points>⭐ {player.score} điểm</Points>
+            </PlayerInfo>
+            {player.rank === 1 && <CrownIcon />}
+          </RankingCard>
+        ))} */}
+        {myRank && (
+          <RankingCard rank={myRank.rank} isMe>
+            {myRank.rank === 1 && <Rank>{myRank.rank}</Rank>}
+            <Avatar src={myRank.avatar} alt={myRank.username} />
+            <PlayerInfo>
+              {myRank.rank !== 1 && <Rank>{myRank.rank}</Rank>}
+              <PlayerName>{myRank.username} (Bạn)</PlayerName>
+              <Points>⭐ {myRank.score} điểm</Points>
+            </PlayerInfo>
+            {myRank.rank === 1 && <CrownIcon />}
+          </RankingCard>
+        )}
+
+        {otherPlayers.map((player) => (
+          <RankingCard key={player.rank} rank={player.rank}>
+            <Rank>{player.rank}</Rank>
+            <Avatar src={player.avatar} alt={player.username} />
+            <PlayerInfo>
               <PlayerName>{player.username}</PlayerName>
               <Points>⭐ {player.score} điểm</Points>
             </PlayerInfo>
@@ -145,6 +186,32 @@ const RankingPage = () => {
 };
 
 export default RankingPage;
+const RankingCard = styled.div`
+  display: flex;
+  align-items: center;
+  background: ${(props) =>
+    props.isMe
+      ? "#ffeaa7" // màu nổi bật
+      : props.rank === 1
+      ? "gold"
+      : props.rank === 2
+      ? "silver"
+      : props.rank === 3
+      ? "#cd7f32"
+      : "white"};
+  padding: 15px;
+  border-radius: 20px;
+  width: ${(props) => 800 - props.rank * 20}px;
+  transition: 0.3s;
+  box-shadow: ${(props) =>
+    props.isMe ? "0 5px 15px rgba(0, 0, 0, 0.3)" : "none"};
+  transform: ${(props) => (props.isMe ? "translateY(-7px)" : "none")};
+
+  &:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+`;
 
 const Container = styled.div`
   text-align: center;
@@ -209,28 +276,28 @@ const TriangleContainer = styled.div`
   margin: 0 auto;
 `;
 
-const RankingCard = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${(props) =>
-    props.rank === 1
-      ? "gold"
-      : props.rank === 2
-      ? "silver"
-      : props.rank === 3
-      ? "#cd7f32"
-      : "white"};
-  padding: 15px;
-  border-radius: 20px;
-  width: ${(props) => 800 - props.rank * 20}px;
-  transition: 0.3s;
-  &:hover {
-    transform: translateY(-7px);
-  }
-`;
+// const RankingCard = styled.div`
+//   display: flex;
+//   align-items: center;
+//   background: ${(props) =>
+//     props.rank === 1
+//       ? "gold"
+//       : props.rank === 2
+//       ? "silver"
+//       : props.rank === 3
+//       ? "#cd7f32"
+//       : "white"};
+//   padding: 15px;
+//   border-radius: 20px;
+//   width: ${(props) => 800 - props.rank * 20}px;
+//   transition: 0.3s;
+//   &:hover {
+//     transform: translateY(-7px);
+//   }
+// `;
 
 const Rank = styled.div`
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: bold;
   width: 50px;
   text-align: center;

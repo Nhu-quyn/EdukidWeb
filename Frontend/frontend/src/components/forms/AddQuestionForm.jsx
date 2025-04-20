@@ -65,29 +65,85 @@ const AddQuestionForm = ({
 
   useEffect(() => {
     if (initialValues) {
+      // Gán các giá trị cơ bản
       form.setFieldsValue({
         ...initialValues,
-        questionTypeId: initialValues.questionTypeId?._id, // Lấy _id nếu có
-        topicId: initialValues.topicId._id,
+        questionTypeId: initialValues.questionTypeId?._id,
+        topicId: initialValues.topicId?._id,
       });
+
       if (initialValues.vocabularyId) {
         setUseVocabulary(true);
       }
-      // console.log(initialValues.topicId);
-      setImageUrls(
-        initialValues.options || [DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]
-      );
-      // initialValues.questionTypeId = initialValues.questionTypeId._id;
-      // console.log(initialValues.questionTypeId);
-      handleQuestionTypeChange(initialValues.questionTypeId);
+
+      const options = initialValues.options || [];
+
+      // Hàm kiểm tra chuỗi là ảnh
+      const isImage = (val) =>
+        typeof val === "string" && val.match(/\.(jpeg|jpg|png|gif|webp)$/i);
+      setQuestionImage(initialValues.image || DEFAULT_IMAGE);
+      const allAreImages =
+        options.length > 0 && options.every((opt) => isImage(opt));
+      const allAreText =
+        options.length > 0 &&
+        options.every((opt) => typeof opt === "string" && !isImage(opt));
+
+      // Trường hợp là option ảnh
+      if (allAreImages) {
+        setImageUrls([
+          ...options,
+          ...Array(3 - options.length).fill(DEFAULT_IMAGE),
+        ]);
+        setOptionsList([]); // xóa text nếu đang sửa từ ảnh
+      }
+      // Trường hợp là option chữ
+      else if (allAreText) {
+        setOptionsList([...options, ...Array(3 - options.length).fill("")]);
+        setImageUrls([DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]);
+      }
+      // Nếu không xác định được dạng options
+      else {
+        setOptionsList(["", "", ""]);
+        setImageUrls([DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]);
+      }
+
+      // Đảm bảo gọi sau khi set xong option/image
+      if (initialValues.questionTypeId?._id) {
+        handleQuestionTypeChange(initialValues.questionTypeId._id);
+      }
     } else {
       form.resetFields();
+      setOptionsList(["", "", ""]);
       setImageUrls([DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]);
     }
-    if (requiredFieldsForType.includes("options") && optionsList.length === 0) {
-      setOptionsList(["", "", ""]); // Thêm 2 ô nhập mặc định
-    }
   }, [initialValues, form, requiredFieldsForType]);
+
+  // useEffect(() => {
+  //   if (initialValues) {
+  //     form.setFieldsValue({
+  //       ...initialValues,
+  //       questionTypeId: initialValues.questionTypeId?._id, // Lấy _id nếu có
+  //       topicId: initialValues.topicId._id,
+  //     });
+  //     if (initialValues.vocabularyId) {
+  //       setUseVocabulary(true);
+  //     }
+  //     // console.log(initialValues.topicId);
+  //     setImageUrls(
+  //       initialValues.options || [DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]
+  //     );
+
+  //     // initialValues.questionTypeId = initialValues.questionTypeId._id;
+  //     // console.log(initialValues.questionTypeId);
+  //     handleQuestionTypeChange(initialValues.questionTypeId);
+  //   } else {
+  //     form.resetFields();
+  //     setImageUrls([DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]);
+  //   }
+  //   if (requiredFieldsForType.includes("options") && optionsList.length === 0) {
+  //     setOptionsList(["", "", ""]); // Thêm 2 ô nhập mặc định
+  //   }
+  // }, [initialValues, form, requiredFieldsForType]);
   const handleTopicChange = (topicId) => {
     console.log(topicId);
     const filtered = vocabularies.filter(
@@ -183,11 +239,21 @@ const AddQuestionForm = ({
     }
   };
 
+  const handleCancel = () => {
+    setImageUrls([DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE]);
+    setOptionsList(["", "", ""]);
+    setQuestionImage(DEFAULT_IMAGE);
+    setUseVocabulary(false);
+    setFilteredVocabularies([]);
+    setRequiredFieldsForType([]);
+    onCancel();
+  };
+
   return (
     <Modal
       title={initialValues ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
       open={visible}
-      onCancel={onCancel}
+      onCancel={handleCancel}
       footer={null}
       centered
     >
@@ -232,7 +298,7 @@ const AddQuestionForm = ({
             rules={[{ required: true }]}
           >
             <Select showSearch placeholder="Chọn từ vựng">
-              {vocabularies.map((vocab) => (
+              {filteredVocabularies.map((vocab) => (
                 <Option key={vocab._id} value={vocab._id}>
                   {vocab.vocabulary}
                 </Option>
@@ -270,7 +336,7 @@ const AddQuestionForm = ({
             </Form.Item>
           )} */}
 
-        {requiredFieldsForType.includes("options") && (
+        {/* {requiredFieldsForType.includes("options") && (
           <>
             {optionsList.map((option, index) => (
               <Form.Item
@@ -318,21 +384,112 @@ const AddQuestionForm = ({
           </Form.Item>
         )}
 
-        {/* {optionsList.length > 0 && (
-          <Form.Item
-            name="answer"
-            label="Chọn đáp án đúng"
-            rules={[{ required: true }]}
-          >
-            <Select placeholder="Chọn đáp án đúng">
-              {optionsList.map((opt, index) => (
-                <Select.Option key={index} value={opt.trim()}>
-                  {opt.trim()}
-                </Select.Option>
+        {requiredFieldsForType.includes("images") && (
+          <Form.Item label="Ảnh minh họa">
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              {imageUrls.map((url, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: 120,
+                    height: 120,
+                    position: "relative",
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  <img
+                    src={url}
+                    alt={`Preview ${index + 1}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <Upload
+                    customRequest={(options) => handleUpload(options, index)} // Liên kết hàm tải lên với index của ảnh
+                    showUploadList={false}
+                    accept="image/*"
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        background: "rgba(0, 0, 0, 0.4)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        color: "#fff",
+                        fontSize: 14,
+                        cursor: "pointer",
+                        opacity: 0,
+                        transition: "opacity 0.3s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                    >
+                      {loading ? <LoadingOutlined /> : <UploadOutlined />}
+                      <span style={{ marginLeft: 5 }}>Tải lên</span>
+                    </div>
+                  </Upload>
+                </div>
               ))}
-            </Select>
+            </div>
           </Form.Item>
         )} */}
+        {requiredFieldsForType.includes("options") && (
+          <>
+            {optionsList.map((option, index) => (
+              <Form.Item
+                key={index}
+                label={`Lựa chọn ${index + 1}`}
+                rules={[{ required: true, message: "Vui lòng nhập lựa chọn!" }]}
+              >
+                <Input
+                  placeholder={`Nhập lựa chọn ${index + 1}`}
+                  value={option}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                />
+              </Form.Item>
+            ))}
+          </>
+        )}
+
+        {requiredFieldsForType.includes("image") && (
+          <Form.Item label="Tải ảnh câu hỏi" name="questionImage">
+            <Upload
+              listType="picture-card"
+              showUploadList={false}
+              beforeUpload={() => false}
+              onChange={(info) => {
+                const file = info.file;
+                const reader = new FileReader();
+                reader.onload = () => {
+                  setQuestionImage(reader.result);
+                };
+                reader.readAsDataURL(file);
+              }}
+            >
+              {questionImage ? (
+                <img
+                  src={questionImage}
+                  alt="Hình ảnh"
+                  style={{ width: "100%" }}
+                />
+              ) : (
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
+          </Form.Item>
+        )}
 
         {requiredFieldsForType.includes("images") && (
           <Form.Item label="Ảnh minh họa">
@@ -392,6 +549,7 @@ const AddQuestionForm = ({
             </div>
           </Form.Item>
         )}
+
         {/* <Form.Item
           name="answer"
           label="Chọn đáp án đúng"
@@ -426,7 +584,7 @@ const AddQuestionForm = ({
                   ))}
           </Radio.Group>
         </Form.Item> */}
-        <Form.Item
+        {/* <Form.Item
           name="answer"
           label="Chọn đáp án đúng"
           rules={[{ required: true, message: "Vui lòng chọn đáp án!" }]}
@@ -469,6 +627,54 @@ const AddQuestionForm = ({
               onChange={(e) => form.setFieldsValue({ answer: e.target.value })}
             />
           )}
+        </Form.Item> */}
+        <Form.Item
+          name="answer"
+          label="Chọn đáp án đúng"
+          rules={[{ required: true, message: "Vui lòng chọn đáp án!" }]}
+        >
+          {imageUrls.some((url) => url !== DEFAULT_IMAGE) ? (
+            // Nếu có ảnh hợp lệ, hiển thị các ảnh trong Radio.Group
+            <Radio.Group
+              onChange={(e) => form.setFieldsValue({ answer: e.target.value })}
+            >
+              {imageUrls
+                .filter((url) => url !== DEFAULT_IMAGE)
+                .map((url, index) => (
+                  <Radio key={`image-${index}`} value={url}>
+                    <img
+                      src={url}
+                      alt={`Ảnh ${index + 1}`}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        objectFit: "cover",
+                        borderRadius: 5,
+                      }}
+                    />
+                  </Radio>
+                ))}
+            </Radio.Group>
+          ) : optionsList.some((opt) => opt.trim() !== "") ? (
+            // Nếu không có ảnh hợp lệ, hiển thị các lựa chọn
+            <Radio.Group
+              onChange={(e) => form.setFieldsValue({ answer: e.target.value })}
+            >
+              {optionsList
+                .filter((opt) => opt.trim() !== "")
+                .map((opt, index) => (
+                  <Radio key={`option-${index}`} value={opt.trim()}>
+                    {opt.trim()}
+                  </Radio>
+                ))}
+            </Radio.Group>
+          ) : (
+            // Nếu không có ảnh và không có lựa chọn, hiển thị input
+            <Input
+              placeholder="Nhập đáp án"
+              onChange={(e) => form.setFieldsValue({ answer: e.target.value })}
+            />
+          )}
         </Form.Item>
 
         <Form.Item name="score" label="Điểm số" rules={[{ required: true }]}>
@@ -487,7 +693,13 @@ const AddQuestionForm = ({
           </Select>
         </Form.Item>
 
-        <Form.Item style={{ textAlign: "center", marginTop: 20 }}>
+        <Form.Item
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 20,
+          }}
+        >
           <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
             {initialValues ? "Cập nhật" : "Thêm mới"}
           </Button>

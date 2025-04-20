@@ -2,6 +2,14 @@ const ProgressVocab = require("../models/ProgressVocabModel");
 const Vocabulary = require("../models/VocabularyModel");
 const User = require("../models/UserModel");
 const Question = require("../models/QuestionModel");
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Lấy ngày giờ hiện tại theo múi giờ Việt Nam
 
 // const createProgressVocab = (newProgressVocab) => {
 //   return new Promise(async (resolve, reject) => {
@@ -115,8 +123,8 @@ const updateProgressVocabFromQuestion = (userId, questionIds) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Kiểm tra userId có tồn tại không
-      console.log("userId", userId);
-      console.log(questionIds);
+      // console.log("userId", userId);
+      // console.log(questionIds);
       const checkUser = await User.findById(userId);
       if (!checkUser) {
         return resolve({
@@ -124,7 +132,8 @@ const updateProgressVocabFromQuestion = (userId, questionIds) => {
           message: "User not found",
         });
       }
-
+      const nowInVietnam = dayjs().tz("Asia/Ho_Chi_Minh").format("DD-MM-YYYY");
+      console.log("Giờ hiện tại ở Việt Nam:", nowInVietnam);
       // Lọc danh sách questionIds có vocabularyId
       const questionsWithVocab = await Question.find({
         _id: { $in: questionIds },
@@ -133,14 +142,14 @@ const updateProgressVocabFromQuestion = (userId, questionIds) => {
         .map((q) => q.vocabularyId)
         .filter((id) => id); // Lọc bỏ giá trị null hoặc undefined
 
-      console.log("vocaularyIds", vocabularyIds);
+      // console.log("vocaularyIds", vocabularyIds);
       if (vocabularyIds.length === 0) {
         return resolve({
           status: "ERR",
           message: "Không có vocabularyId hợp lệ",
         });
       }
-      console.log("tới đâyyy");
+      // console.log("tới đâyyy");
       // Kiểm tra từng vocabularyId có tồn tại không
       const validVocabularies = await Vocabulary.find({
         _id: { $in: vocabularyIds },
@@ -162,7 +171,11 @@ const updateProgressVocabFromQuestion = (userId, questionIds) => {
 
         if (progressVocab) {
           // Nếu đã tồn tại, cập nhật studyDate thành Date.now()
-          progressVocab.studyDate = Date.now();
+          progressVocab.studyDate = dayjs()
+            .tz("Asia/Ho_Chi_Minh")
+            .startOf("day")
+            .toDate();
+
           await progressVocab.save();
         } else {
           // Nếu chưa tồn tại, tạo mới
@@ -170,7 +183,7 @@ const updateProgressVocabFromQuestion = (userId, questionIds) => {
             userId,
             vocabularyId,
             hasLearned: true,
-            studyDate: Date.now(),
+            studyDate: dayjs().tz("Asia/Ho_Chi_Minh").startOf("day").toDate(),
           });
           await progressVocab.save();
         }

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetGame } from "../../store/gameSlice";
 import { resetActivity, setReviewIsTrue } from "../../store/activitySlice";
 import { useLocation } from "react-router-dom";
+import { FaHome, FaTrophy, FaList } from "react-icons/fa";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -253,6 +254,7 @@ const EndGamePage = () => {
       {userId && (
         <RankContainer>
           <Trophy />
+          <RankText>{data.scoreTotal}</RankText>
           <RankText>Hạng Của Bạn: {data.rank}</RankText>
         </RankContainer>
       )}
@@ -265,6 +267,11 @@ const EndGamePage = () => {
         ) : (
           <Button onClick={() => navigate("/game")}>
             <RedoOutlined /> Chơi Lại
+          </Button>
+        )}
+        {user && (
+          <Button onClick={() => navigate("/ranking")}>
+            <FaTrophy size={20} /> Xếp Hạng
           </Button>
         )}
 

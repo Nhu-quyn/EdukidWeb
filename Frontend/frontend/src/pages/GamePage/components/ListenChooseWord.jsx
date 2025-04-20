@@ -1,130 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import styled from "styled-components";
-// import { Card, Button, Typography, message } from "antd";
-// import { RightOutlined, SoundOutlined } from "@ant-design/icons";
-// import {
-//   StyledCard,
-//   QuestionWrapper,
-//   QuestionText,
-//   IconWrapper,
-// } from "../gameCss";
-// const { Text } = Typography;
-
-// const ButtonContainer = styled.div`
-//   margin-top: 40px;
-//   display: flex;
-//   justify-content: flex-end;
-// `;
-
-// const IconWrapperSound = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   cursor: pointer;
-//   background-color: #ff8c00;
-//   padding: 10px;
-//   border-radius: 50%;
-//   color: white;
-//   font-size: 24px;
-//   transition: background-color 0.3s ease;
-
-//   &:hover {
-//     background-color: #ffa726;
-//   }
-// `;
-// const OptionsContainer = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   gap: 20px; /* Tăng khoảng cách ngang và dọc */
-//   flex-wrap: wrap;
-//   margin-top: 40px; /* Tăng khoảng cách với tiêu đề */
-// `;
-
-// const OptionWrapper = styled.div`
-//   padding: 15px;
-//   border-radius: 12px;
-//   background-color: ${(props) =>
-//     props.isSelected ? (props.correct ? "#d4edda" : "#f8d7da") : "#fff"};
-//   transition: all 0.3s ease;
-//   cursor: pointer;
-//   font-size: 30px;
-//   width: 250px;
-//   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-//   text-align: center;
-//   transform: ${(props) => (props.isSelected ? "scale(1.05)" : "scale(1)")};
-
-//   &:hover {
-//     transform: scale(1.05);
-//     box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.2);
-//   }
-// `;
-
-// const TextOption = styled(Text)`
-//   display: "block";
-//   font-size: 3rem;
-//   font-weight: bold;
-//   color: option === answer ? "#155724" : "#721c24";
-//   marginTop: 10;
-// `;
-// const ListenChooseWord = ({ options, answer, onNext, onFinish, isLast }) => {
-//   const [selected, setSelected] = useState(null);
-//   const handleSpeakWord = () => {
-//     const utterance = new SpeechSynthesisUtterance(answer);
-//     utterance.voice = speechSynthesis
-//       .getVoices()
-//       .find((voice) => voice.name === "Google UK English Female");
-//     speechSynthesis.speak(utterance);
-//   };
-//   const handleSelect = (option) => {
-//     setSelected(option); // Cập nhật state khi chọn một option
-//     // if (option.toLowerCase().trim() === answer.toLowerCase()) {
-//     //   message.success("🎉 Đúng rồi!");
-//     // } else {
-//     //   message.error(" Sai rồi! Bạn hãy cố gắng ở câu tiếp nhé.");
-//     // }
-//   };
-//   return (
-//     <StyledCard
-//       title={
-//         <QuestionWrapper>
-//           <QuestionText>Nghe và chọn từ đúng</QuestionText>
-//           <IconWrapperSound
-//             // style={{ position: "absolute", top: "10px", right: "10px" }}
-//             onClick={handleSpeakWord}
-//             style={{ position: "absolute", top: "10px", right: "0px" }}
-//           >
-//             <SoundOutlined />
-//           </IconWrapperSound>
-//         </QuestionWrapper>
-//       }
-//     >
-//       {/* Options for multiple choice */}
-//       <OptionsContainer>
-//         {options.map((option, index) => (
-//           <OptionWrapper
-//             key={index}
-//             onClick={() => handleSelect(option)}
-//             isSelected={selected === option} // Đổi tên prop
-//             correct={option === answer}
-//           >
-//             <TextOption>{option}</TextOption>
-//           </OptionWrapper>
-//         ))}
-//       </OptionsContainer>
-
-//       <ButtonContainer>
-//         <IconWrapper
-//           onClick={isLast ? onFinish : onNext}
-//           style={{ marginLeft: "20px", cursor: "pointer" }}
-//         >
-//           <RightOutlined />
-//         </IconWrapper>
-//       </ButtonContainer>
-//     </StyledCard>
-//   );
-// };
-
-// export default ListenChooseWord;
 import React, { useState, useEffect } from "react";
 import styled, { css, keyframes } from "styled-components";
 import { Typography } from "antd";
@@ -134,7 +7,10 @@ import {
   QuestionWrapper,
   QuestionText,
   IconWrapper,
+  LevelBadge,
+  levelDetails,
 } from "../gameCss";
+import { Howl } from "howler";
 const { Text } = Typography;
 
 // Define bounce animation using keyframes
@@ -223,26 +99,6 @@ const TextOption = styled(Text)`
   margin-top: 10px;
 `;
 
-const LevelBadge = styled.div`
-  display: inline-block;
-  // display: flex inline-block;
-  padding: 8px 16px;
-  border-radius: 20px;
-  // background: linear-gradient(45deg, #6dd5ed, #2193b0);
-  color: #444;
-  font-weight: bold;
-  font-size: 2rem;
-  // text-transform: uppercase;
-  margin-left: 10px; /* Giữ khoảng cách với chữ */
-  // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease-in-out;
-
-  &:hover {
-    transform: scale(1.1);
-    // box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  }
-`;
-
 // Instructions container for concrete color guidance
 const Instructions = styled.div`
   margin-top: 20px;
@@ -288,91 +144,145 @@ const ListenChooseWord = ({
   const [feedback, setFeedback] = useState(null);
 
   const handleSpeakWord = () => {
-    const utterance = new SpeechSynthesisUtterance(answer);
-    utterance.voice = speechSynthesis
-      .getVoices()
-      .find((voice) => voice.name === "Google UK English Female");
-    speechSynthesis.speak(utterance);
+    const speak = () => {
+      const utterance = new SpeechSynthesisUtterance(answer);
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(
+        (voice) => voice.name === "Google UK English Female"
+      );
+      if (selectedVoice) utterance.voice = selectedVoice;
+      window.speechSynthesis.speak(utterance);
+    };
+    console.log(speechSynthesis.getVoices());
+
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener("voiceschanged", speak);
+    } else {
+      speak();
+    }
   };
-  useEffect(() => {
-    setSelected(null); // Reset lựa chọn khi câu hỏi thay đổi
-  }, [_id]);
+
+  const correctSound = new Howl({
+    src: ["/Sound/correct.wav"], // Âm thanh đúng
+  });
+
+  const incorrectSound = new Howl({
+    src: ["/Sound/incorrect.wav"], // Âm thanh sai
+  });
+  // const handleSelect = (option) => {
+
   // const handleSelect = (option) => {
   //   if (selected) return; // Prevent re-selection
   //   setSelected(option);
   //   setFeedback(option === answer ? "🎉 Đúng!" : "❌ Sai!");
   // };
   const handleSelect = (selectedAnswer) => {
+    if (selected) return;
     const isCorrect = selectedAnswer === answer; // So sánh với đáp án đúng
+    // Nếu đã chọn thì không làm gì
+    // const isCorrect = selected === answer;
+    if (isCorrect) {
+      correctSound.play(); // Phát âm thanh đúng
+    } else {
+      incorrectSound.play(); // Phát âm thanh sai
+    }
     onSelectAnswer(_id, selectedAnswer, isCorrect, score); // Giả sử đúng được +10 điểm
     setFeedback(selectedAnswer === answer ? "🎉 Đúng!" : "❌ Sai!");
-    if (selected) return;
     setSelected(selectedAnswer);
+    if (selected) return;
   };
+  const handleNext = () => {
+    // Nếu người dùng đã chọn đáp án
+    if (!selected) {
+      onSelectAnswer(_id, "", false, score);
+    }
 
+    // Chờ Redux cập nhật xong rồi mới next câu tiếp theo
+    setTimeout(() => {
+      onNext(); // Chuyển câu mới
+    }, 50); // Tránh next quá nhanh trước khi Redux cập nhật
+  };
+  const handleFinish = () => {
+    // Nếu người dùng đã chọn đáp án
+    // if (!selected) {
+    //   onSelectAnswer(_id, "", false, score);
+    // }
+
+    // Chờ Redux cập nhật xong rồi mới next câu tiếp theo
+    setTimeout(() => {
+      onFinish(); // Chuyển câu mới
+    }, 50); // Tránh next quá nhanh trước khi Redux cập nhật
+  };
   return (
-    <StyledCard
-      title={
-        <QuestionWrapper>
-          <QuestionText>{questionContent}</QuestionText>
-        </QuestionWrapper>
-      }
-    >
-      <IconWrapperSound onClick={handleSpeakWord}>
-        <SoundOutlined />
-      </IconWrapperSound>
+    <div>
+      <div style={{ marginTop: 20 }}>
+        <LevelBadge level={questionLevel}>
+          {levelDetails[questionLevel].label} - {score} điểm
+        </LevelBadge>
+      </div>
+      <StyledCard
+        title={
+          <QuestionWrapper>
+            <QuestionText>{questionContent}</QuestionText>
+          </QuestionWrapper>
+        }
+      >
+        <IconWrapperSound onClick={handleSpeakWord}>
+          <SoundOutlined />
+        </IconWrapperSound>
 
-      {/* Level badge */}
-      <LevelBadge>Level: {questionLevel}</LevelBadge>
+        {/* Level badge */}
+        {/* <LevelBadge>Level: {questionLevel}</LevelBadge> */}
 
-      <OptionsContainer>
-        {options.map((option, index) => (
-          <OptionWrapper
-            key={index}
-            onClick={() => handleSelect(option)}
-            selected={selected === option}
-            correct={option === answer}
-            showAnswer={selected !== null}
+        <OptionsContainer>
+          {options.map((option, index) => (
+            <OptionWrapper
+              key={index}
+              onClick={() => handleSelect(option)}
+              selected={selected === option}
+              correct={option === answer}
+              showAnswer={selected !== null}
+            >
+              <TextOption>{option}</TextOption>
+              {selected === option && (
+                <Text
+                  style={{
+                    display: "block",
+                    fontSize: "1.4rem",
+                    fontWeight: "bold",
+                    color: option === answer ? "#155724" : "#721c24",
+                    marginTop: 10,
+                  }}
+                >
+                  {feedback}
+                </Text>
+              )}
+            </OptionWrapper>
+          ))}
+        </OptionsContainer>
+
+        {/* Instruction area showing concrete colors */}
+        <Instructions>
+          <InstructionItem>
+            <ColorBox style={{ backgroundColor: "#d4edda" }} />
+            <Text>Đáp án đúng</Text>
+          </InstructionItem>
+          <InstructionItem>
+            <ColorBox style={{ backgroundColor: "#f8d7da" }} />
+            <Text>Đáp án sai</Text>
+          </InstructionItem>
+        </Instructions>
+
+        <ButtonContainer>
+          <IconWrapper
+            onClick={isLast ? handleFinish : handleNext}
+            style={{ marginLeft: "20px", cursor: "pointer" }}
           >
-            <TextOption>{option}</TextOption>
-            {selected === option && (
-              <Text
-                style={{
-                  display: "block",
-                  fontSize: "1.4rem",
-                  fontWeight: "bold",
-                  color: option === answer ? "#155724" : "#721c24",
-                  marginTop: 10,
-                }}
-              >
-                {feedback}
-              </Text>
-            )}
-          </OptionWrapper>
-        ))}
-      </OptionsContainer>
-
-      {/* Instruction area showing concrete colors */}
-      <Instructions>
-        <InstructionItem>
-          <ColorBox style={{ backgroundColor: "#d4edda" }} />
-          <Text>Đáp án đúng</Text>
-        </InstructionItem>
-        <InstructionItem>
-          <ColorBox style={{ backgroundColor: "#f8d7da" }} />
-          <Text>Đáp án sai</Text>
-        </InstructionItem>
-      </Instructions>
-
-      <ButtonContainer>
-        <IconWrapper
-          onClick={isLast ? onFinish : onNext}
-          style={{ marginLeft: "20px", cursor: "pointer" }}
-        >
-          <RightOutlined />
-        </IconWrapper>
-      </ButtonContainer>
-    </StyledCard>
+            <RightOutlined />
+          </IconWrapper>
+        </ButtonContainer>
+      </StyledCard>
+    </div>
   );
 };
 

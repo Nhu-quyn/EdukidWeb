@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const FillBlank = ({
   questionContent,
   answer,
   type,
   score,
   activityId,
+  questionLevel,
   // isReset,
   // setIsReset,
   isEnd,
@@ -22,9 +23,10 @@ const FillBlank = ({
   const [isCorrect, setIsCorrect] = useState(false);
   // Kiểm tra đáp án tự động nếu isReview = true
   useEffect(() => {
-    // if (!_id || !activityId) return;
+    console.log("ID kiểm tra:", _id, activityId);
+    if (!_id || !activityId) return;
     const savedInput = localStorage.getItem(`userInput-${_id}-${activityId}`);
-    console.log(savedInput);
+    console.log("Giá trị lấy từ localStorage:", savedInput);
     if (savedInput) {
       setUserInput(savedInput);
     }
@@ -38,7 +40,20 @@ const FillBlank = ({
   useEffect(() => {
     if (isEnd && !isReview) {
       check();
-      onUserSelect(_id, type, userInput, isCorrect, score);
+      console.log("userInput", userInput);
+      console.log("answer", answer);
+      onUserSelect(
+        _id,
+        type,
+        userInput,
+        userInput.trim().toLowerCase() === answer.trim().toLowerCase(),
+        score
+      );
+    } // Xóa giá trị chỉ khi isEnd thực sự kết thúc
+    if (isEnd) {
+      setTimeout(() => {
+        localStorage.removeItem(`userInput-${_id}-${activityId}`);
+      }, 500); // Delay để đảm bảo dữ liệu được xử lý
     }
     localStorage.removeItem(`userInput-${_id}-${activityId}`);
   }, [isEnd]);
@@ -65,16 +80,22 @@ const FillBlank = ({
     const value = e.target.value;
     setUserInput(value);
     localStorage.setItem(`userInput-${_id}-${activityId}`, value);
+    console.log("Lưu vào localStorage:", value); // Kiểm tra giá trị lưu trữ
   };
 
   return (
     <Card>
+      {/* {questionLevel} */}
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
       <Question>{questionContent}</Question>
       <Row>
         <AnswerInput
           type="text"
           value={userInput}
           onChange={handleInputChange}
+          disabled={isReview}
           placeholder="Nhập đáp án..."
         />
       </Row>
@@ -93,13 +114,13 @@ const Card = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const Question = styled.h3`
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
-`;
+// const Question = styled.h3`
+//   font-size: 20px;
+//   font-weight: 600;
+//   color: #333;
+//   text-align: center;
+//   margin-bottom: 20px;
+// `;
 
 const Row = styled.div`
   display: flex;

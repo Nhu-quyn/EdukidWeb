@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"; // Sửa lỗi useFfect
+import React, { useState, useEffect } from "react";
+
 import * as ActivityService from "../../services/ActivityService";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -11,136 +12,166 @@ import {
   resetActivity,
   setRank,
 } from "../../store/activitySlice";
+
 const Container = styled.div`
   background: url(${backgroundImage}) no-repeat center center;
-  background-size: cover;
+  background-attachment: fixed;
   min-height: 100vh;
+  // padding: 20px;
   display: flex;
   flex-direction: column;
+  background-size: cover;
+  backdrop-filter: brightness(1.1) contrast(1.2);
+`;
+// const Container = styled.div`
+//   background-image: url(${ImageBackground});
+//   background-size: cover;
+//   background-position: center center;
+//   background-repeat: no-repeat;
+//   background-attachment: fixed;
+//   min-height: 100vh;
+//   display: flex;
+//   flex-direction: column;
+//   @media (max-width: 1300px) {
+//     padding: 25px 10px;
+//   }
+//   @media (max-width: 920px) {
+//     padding: 25px 10px;
+//   }
+//   @media (max-width: 767px) {
+//     background-image: url(${ImageBackgroundPhone});
+
+//     background-size: contain;
+//   }
+//   @media (max-width: 480px) {
+//     padding: 25px 10px;
+//   }
+// `;
+
+const MainContent = styled.main`
+  padding: 30px 40px;
+  text-align: center;
+  background-color: rgba(241, 241, 241, 0.9);
+  max-width: 1200px;
+  margin: auto;
+  // flex: 1;
+  border-radius: 12px;
+  @media (max-width: 1300px) {
+    padding: 25px 10px;
+  }
+  @media (max-width: 920px) {
+    background-color: transparent;
+  }
+  @media (max-width: 768px) {
+  }
+  @media (max-width: 480px) {
+    padding: 25px 10px;
+  }
 `;
 
 const Wrapper = styled.div`
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-
   display: flex;
   justify-content: center;
+  flex: 1; /* Lấp đầy không gian còn lại, giúp Footer luôn ở cuối */
   align-items: center;
-
-  padding-top: 200px; /* Điều chỉnh khoảng cách từ trên xuống */
+  padding-top: 100px;
+  width: 100%;
 `;
 
 const MainContainer = styled.div`
-  min-width: 700px;
-  width: 45%; /* Đảm bảo không chiếm toàn bộ màn hình trên thiết bị nhỏ */
+  width: 50%;
+  max-width: 700px;
+  min-width: 320px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Căn giữa theo chiều dọc */
-  align-items: center; /* Căn giữa theo chiều ngang */
-  // background: #fffbec;
-  background-color: #f6f9fc;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  align-items: center;
+  background: #f9f7fe;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   font-family: "Comic Sans MS", cursive, sans-serif;
   transition: all 0.3s ease-in-out;
-  /* Responsive */
-  @media (max-width: 968px) {
-    max-width: 700px;
-    // max-width: 400px;
-    // max-width: 0%; /* Giảm kích thước khi màn hình nhỏ hơn */
-    padding: 15px;
-  }
-  /* Responsive */
-  @media (max-width: 768px) {
-    max-width: 500px;
-    // max-width: 0%; /* Giảm kích thước khi màn hình nhỏ hơn */
-    padding: 15px;
-  }
+  border: 3px solid #ffcc00;
 
+  @media (max-width: 768px) {
+    width: 80%;
+    padding: 15px;
+  }
   @media (max-width: 480px) {
-    max-width: 400px;
-    // max-width: 95%;
+    width: 95%;
     padding: 10px;
-    border-radius: 5px; /* Bo góc nhỏ hơn trên màn hình nhỏ */
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
   }
 `;
 
 const Title = styled.h2`
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  color: #ff6600;
+  color: #ff4500;
   margin-bottom: 10px;
-`;
-const Time = styled.p`
-  font-size: 1.8rem;
-`;
-const Level = styled.p`
-  font-size: 1.8rem;
+  text-align: center;
 `;
 
 const Description = styled.p`
-  font-size: 16px;
-  color: #555;
+  font-size: 18px;
+  color: #444;
   margin-bottom: 15px;
   line-height: 1.6;
+  text-align: center;
+`;
+
+const InfoText = styled.p`
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: bold;
 `;
 
 const Button = styled.button`
   margin: 10px;
-  padding: 12px 20px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  background-color: ${(props) => (props.primary ? "#66bb6a" : "#6c757d")};
+  background-color: ${(props) => (props.primary ? "#ff9900" : "#6c757d")};
   color: white;
-  transition: background 0.3s;
-  &:hover {
-    background-color: ${(props) => (props.primary ? "#2e7d32" : "#5a6268")};
-  }
+  transition: transform 0.2s ease-in-out;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
 
+  &:hover {
+    transform: scale(1.1);
+    background-color: ${(props) => (props.primary ? "#e68a00" : "#5a6268")};
+  }
   &:disabled {
     background-color: #ccc;
     cursor: not-allowed;
   }
 `;
 
+const NavButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
 const TestListPage = () => {
   const navigate = useNavigate();
   const [testActivities, setTestActivities] = useState([]);
   const dispatch = useDispatch();
-  // const testActivities = [
-  //   {
-  //     id: 1,
-  //     activityName: "Bài kiểm tra từ vựng 1",
-  //     activityDescription:
-  //       "Trong bài kiểm tra này, bé sẽ được ôn tập các từ vựng cơ bản về màu sắc, con vật và đồ vật quen thuộc trong cuộc sống hàng ngày.",
-  //     testTime: 15,
-  //     activityLevel: "Dễ",
-  //   },
-  //   {
-  //     id: 2,
-  //     activityName: "Bài kiểm tra từ vựng 2",
-  //     activityDescription:
-  //       "Bài kiểm tra này tập trung vào các từ vựng về nghề nghiệp, phương tiện giao thông và các hoạt động hàng ngày.",
-  //     testTime: 20,
-  //     activityLevel: "Trung bình",
-  //   },
-  // ];
-  // useEffect được đặt ở cuối sau khi giao diện đã được khai báo
+  const user = useSelector((state) => state.user?.user);
+  const userId = user?._id;
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await ActivityService.getActivityByTest();
+        console.log(userId);
+        const response = await ActivityService.testByUser(userId);
         if (response.status !== "OK") {
-          console.lò("Đã có lỗi khi lấy danh sách");
+          console.error("Đã có lỗi khi lấy danh sách");
         }
-        setTestActivities(response.data);
+        // console.log(response.data);
+        setTestActivities(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
       }
@@ -148,6 +179,7 @@ const TestListPage = () => {
 
     fetchData();
   }, []);
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (testActivities.length === 0) {
@@ -180,6 +212,19 @@ const TestListPage = () => {
 
   const { activityName, activityDescription, testTime, activityLevel } =
     testActivities[currentIndex];
+  const getLevelLabel = (level) => {
+    switch (level) {
+      case "easy":
+        return "Dễ";
+      case "normal":
+      case "medium":
+        return "Trung bình";
+      case "hard":
+        return "Khó";
+      default:
+        return "Không rõ";
+    }
+  };
 
   return (
     <Container>
@@ -188,26 +233,32 @@ const TestListPage = () => {
         <MainContainer>
           <Title>{activityName}</Title>
           <Description>{activityDescription}</Description>
-          <Time>
-            <strong>Thời gian:</strong> {testTime} phút
-          </Time>
-          <Level>
-            <strong>Mức độ:</strong> {activityLevel}
-          </Level>
+          <InfoText>
+            <strong>⏳ Thời gian:</strong> {testTime} phút
+          </InfoText>
+          <InfoText>
+            <strong>⭐ Mức độ:</strong>
+            {getLevelLabel(activityLevel)}
+          </InfoText>
           <Button primary onClick={handleStart}>
             Bắt đầu
           </Button>
-          <div>
-            <Button onClick={handlePrev} disabled={currentIndex === 0}>
+          <NavButtons>
+            <Button
+              onClick={handlePrev}
+              disabled={currentIndex === 0}
+              style={{ color: "#ff9900" }}
+            >
               {"<<"}
             </Button>
             <Button
               onClick={handleNext}
               disabled={currentIndex === testActivities.length - 1}
+              style={{ color: "#ff9900" }}
             >
               {">>"}
             </Button>
-          </div>
+          </NavButtons>
         </MainContainer>
       </Wrapper>
       <Footer />

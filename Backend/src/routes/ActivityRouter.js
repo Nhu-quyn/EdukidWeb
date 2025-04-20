@@ -18,15 +18,6 @@ router.post(
   "/filter-by-topic/:topicId",
   ActivityController.filterActivityReviewByTopic
 );
+router.get("/test/:userId", ActivityController.getTestByUserNoDone);
+router.get("/count-test/:userId", ActivityController.getCountTestNotDone);
 module.exports = router;
-// module.exports = {
-//     createCategory,
-//     createActivity,
-//     updateActivity,
-//     deleteActivity,
-//     getAllQuizByTopic, //// để đóđó
-//     addQuestionsToActivity,
-//     getAllQuizByCategory,
-//     getAllCategory,
-//     getCategoryByName,
-//   };

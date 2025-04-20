@@ -262,6 +262,46 @@ const getAllLeaderBoard = async (req, res) => {
     });
   }
 };
+const updateAvatar = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const avatar = req.body.avatar;
+    const result = await UserService.updateAvatar(userId, avatar);
+    return res.status(200).json({
+      status: "OK",
+      data: result,
+    });
+  } catch (e) {
+    // console.error("Error fetching leaderboard:", e);
+
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Internal server error",
+    });
+  }
+};
+const updatePassword = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { currentPassword, newPassword } = req.body;
+    const result = await UserService.updatePassword(
+      userId,
+      currentPassword,
+      newPassword
+    );
+    return res.status(200).json({
+      status: "OK",
+      data: result,
+    });
+  } catch (e) {
+    // console.error("Error fetching leaderboard:", e);
+
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Internal server error",
+    });
+  }
+};
 
 module.exports = {
   createUser,
@@ -276,4 +316,6 @@ module.exports = {
   // updateLeaderBoard,
   getAllLeaderBoard,
   // updateAvatarUser,
+  updateAvatar,
+  updatePassword,
 };

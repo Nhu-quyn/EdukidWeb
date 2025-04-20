@@ -10,6 +10,7 @@ import {
   Image,
   Tooltip,
   Space,
+  Modal,
 } from "antd";
 import {
   EditOutlined,
@@ -18,9 +19,11 @@ import {
   CheckCircleOutlined,
   PlayCircleOutlined,
   ExportOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 
+const { confirm } = Modal;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -53,6 +56,8 @@ const QuestionsTable = ({
   questions,
   onEdit,
   onDelete,
+  topics,
+  questionTypes,
   onDeleteAll,
   onAddToGame,
   onAddToExercise,
@@ -69,7 +74,19 @@ const QuestionsTable = ({
   const filteredQuestions = questions.filter((q) =>
     q?.questionContent?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+  const showDeleteConfirm = (record) => {
+    confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa question "${record.questionContent}" không?`,
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk() {
+        onDelete(record);
+      },
+    });
+  };
   const handleDeleteAll = () => {
     if (selectedRowKeys.length === 0) {
       message.warning("Vui lòng chọn ít nhất một câu hỏi để xóa.");
@@ -90,13 +107,17 @@ const QuestionsTable = ({
   const handleAddToExercise = () => {
     if (filterType === "Trò chơi") {
       handleAddToGame();
+    } else {
+      if (!selectedExercise) {
+        message.warning("Vui lòng chọn bài tập.");
+        return;
+      } else {
+        onAddToExercise(selectedRowKeys, selectedExercise);
+      }
     }
-    if (!selectedExercise) {
-      message.warning("Vui lòng chọn bài tập.");
-      return;
-    }
-    console.log("tới toAdd");
-    onAddToExercise(selectedRowKeys, selectedExercise);
+
+    setSelectedRowKeys([]);
+    setSelectedExercise(null);
   };
   const questionTypeIcons = {
     word_match: (
@@ -146,6 +167,11 @@ const QuestionsTable = ({
         </Tooltip>
       </Space>
     ),
+  };
+  const levelMapping = {
+    easy: "Dễ",
+    medium: "Trung bình",
+    hard: "Khó",
   };
   const columns = [
     {
@@ -213,23 +239,48 @@ const QuestionsTable = ({
       },
     },
 
-    // {
-    //   title: "Tùy chọn",
-    //   dataIndex: "options",
-    //   key: "options",
-    //   render: (options) =>
-    //     Array.isArray(options) ? options.join(", ") : "Không có",
-    // },
+    {
+      title: "Mức độ câu hỏi",
+      dataIndex: "questionLevel",
+      key: "questionLevel",
+      filters: [
+        { text: "Dễ", value: "easy" },
+        { text: "Trung bình", value: "medium" },
+        { text: "Khó", value: "hard" },
+      ],
+      onFilter: (value, record) => record.questionLevel === value,
+      render: (level) => {
+        const levelMapping = {
+          easy: "Dễ",
+          medium: "Trung bình",
+          hard: "Khó",
+        };
+        return levelMapping[level] || "Không xác định";
+      },
+    },
     {
       title: "Loại câu hỏi",
       dataIndex: "questionTypeId",
       key: "questionTypeId",
+      render: (questionType) => questionType.questionTypeId,
+      filters: questionTypes.map((type) => ({
+        text: type.questionTypeId,
+        value: type.questionTypeId,
+      })),
+      onFilter: (value, record) =>
+        record.questionTypeId.questionTypeId === value,
       render: (questionType) => questionType.questionTypeId,
     },
     {
       title: "Chủ đề",
       dataIndex: "topicId",
       key: "topicId",
+      render: (topic) => topic.topicName,
+      filters: topics.map((topic) => ({
+        text: topic.topicName,
+        value: topic._id,
+      })),
+      onFilter: (value, record) => record.topicId._id === value,
       render: (topic) => topic.topicName,
     },
     { title: "Điểm", dataIndex: "score", key: "score" },
@@ -251,14 +302,13 @@ const QuestionsTable = ({
             onClick={() => onEdit(record)}
           />
           {/* </Tooltip> */}
-          <Popconfirm
-            title="Bạn có chắc muốn xóa?"
-            onConfirm={() => onDelete(record._id)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button danger type="text" icon={<DeleteOutlined />} />
-          </Popconfirm>
+          <Button
+            type="text"
+            icon={<DeleteOutlined />}
+            danger
+            // onClick={() => onDelete(record._id)}
+            onClick={() => showDeleteConfirm(record)}
+          />
         </div>
       ),
     },
@@ -276,33 +326,25 @@ const QuestionsTable = ({
           Xóa tất cả
         </Button>
 
-        <Button
+        {/* <Button
           type="default"
           onClick={handleAddToGame}
           disabled={!selectedRowKeys.length}
         >
           Thêm vào Game
-        </Button>
+        </Button> */}
 
         <Segmented
           options={["Trò chơi", "Ôn tập", "Kiểm tra"]}
-          onChange={(value) => setFilterType(value)}
+          onChange={setFilterType}
         />
-
-        <Button
-          type="default"
-          danger
-          disabled={!selectedRowKeys.length}
-          onClick={handleDeleteAll}
-        >
-          Xóa tất cả
-        </Button>
 
         <Select
           showSearch
           style={{ width: 200 }}
           placeholder={`Chọn ${filterType}`}
-          onChange={(value) => setSelectedExercise(value)}
+          onChange={setSelectedExercise}
+          disabled={filterType === "Trò chơi"} // Vô hiệu hóa khi là Trò chơi
         >
           {(filterType === "Kiểm tra" ? testActivities : reviewActivities).map(
             (activity) => (
@@ -316,9 +358,12 @@ const QuestionsTable = ({
         <Button
           type="default"
           onClick={handleAddToExercise}
-          disabled={!selectedRowKeys.length || !selectedExercise}
+          disabled={
+            !selectedRowKeys.length ||
+            (filterType !== "Trò chơi" && !selectedExercise)
+          }
         >
-          Thêm vào {filterType}
+          {`Thêm vào ${filterType}`}
         </Button>
 
         {/* </div> */}

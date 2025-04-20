@@ -179,5 +179,32 @@ export const filterActivityReviewByTopic = async (topicId, userId) => {
     throw error;
   }
 };
+export const testByUser = async (userId) => {
+  try {
+    // const activitiesResponse = await getActivityByReview();
 
+    // const activities = activitiesResponse?.data; // Tránh lỗi nếu data undefined
+
+    const response = await axios.get(
+      `${api_activity}/test/${userId}`
+      // Truyền activities vào body
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
+export const countTest = async (userId) => {
+  try {
+    const response = await axios.get(
+      `${api_activity}/count-test/${userId}`
+      // Truyền activities vào body
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
 // router.put("/update-activity/:id", ActivityController.updateActivity); //chua test

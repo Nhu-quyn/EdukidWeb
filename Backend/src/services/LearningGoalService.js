@@ -21,16 +21,16 @@ const createLearningGoal = (
         });
       }
 
-      // Kiểm tra xem mục tiêu học tập của user đã tồn tại chưa
-      const existingGoal = await LearningGoal.findOne({ userId });
+      // // Kiểm tra xem mục tiêu học tập của user đã tồn tại chưa
+      // const existingGoal = await LearningGoal.findOne({ userId });
 
-      if (existingGoal) {
-        return resolve({
-          status: "ERR",
-          message: "Mục tiêu học tập đã tồn tại cho người dùng này",
-          data: existingGoal,
-        });
-      }
+      // if (existingGoal) {
+      //   return resolve({
+      //     status: "ERR",
+      //     message: "Mục tiêu học tập đã tồn tại cho người dùng này",
+      //     data: existingGoal,
+      //   });
+      // }
       console.log("startDate:", startDate); // Kiểm tra giá trị của startDate
       console.log("Loại của startDate:", typeof startDate);
 
@@ -47,42 +47,27 @@ const createLearningGoal = (
       const reminders = [];
 
       // Nếu có targetWords → Tạo lời nhắc về số từ cần học
-      if (!targetTimes && targetWords) {
+      if (targetWords) {
         reminders.push({
           learningGoalId: newGoal._id,
-          reminderTitle: "📚 Nhắc nhở học từ vựng!",
-          reminderContent: `Bạn đã đặt mục tiêu học ${targetWords} từ mới. Đừng quên ôn tập nhé!`,
+          reminderTitle: "📚 Hôm nay học từ vựng gì nhỉ?",
+          reminderContent: `Mục tiêu hôm nay là học ${targetWords} từ mới. Hãy cùng nhau học tập thật vui nhé!`,
           date: new Date(), // Nhắc ngay khi tạo
           status: "pending",
         });
       }
 
-      // Nếu có targetTimes → Tạo lời nhắc theo thời gian học
-      if (targetTimes && !targetWords) {
-        const [hours, minutes] = targetTimes.split(":").map(Number);
-        const reminderDate = new Date();
-        reminderDate.setHours(hours, minutes, 0, 0); // Đặt thời gian nhắc nhở
-
-        reminders.push({
-          learningGoalId: newGoal._id,
-          reminderTitle: "⏰ Đến giờ học rồi!",
-          reminderContent: `Đã đến ${targetTimes}, đừng quên dành thời gian học từ vựng nhé!`,
-          date: reminderDate,
-          status: "pending",
-        });
-      }
-
-      // Nếu có cả hai → Tạo thêm lời nhắc kết hợp
-      if (targetWords && targetTimes) {
+      // Nếu có targetTimes → Tạo thêm lời nhắc theo thời gian học
+      if (targetTimes) {
         const [hours, minutes] = targetTimes.split(":").map(Number);
         const combinedReminderDate = new Date();
         combinedReminderDate.setHours(hours, minutes, 0, 0); // Đặt thời gian nhắc nhở
 
         reminders.push({
           learningGoalId: newGoal._id,
-          reminderTitle: "📅 Kế hoạch học tập hôm nay!",
-          reminderContent: `Hôm nay bạn cần học ${targetWords} từ mới vào lúc ${targetTimes}. Hãy đảm bảo hoàn thành mục tiêu nhé!`,
-          date: combinedReminderDate,
+          reminderTitle: "📅 Đến giờ học rồi!",
+          reminderContent: `Đến ${targetTimes}, hãy dành thời gian học từ vựng để đạt mục tiêu nhé! Cố gắng lên nào!`,
+          date: new Date(),
           status: "pending",
         });
       }
@@ -134,6 +119,14 @@ const updateStatus = (id, status) => {
         },
         { new: true }
       );
+      await Reminder.findOneAndUpdate(
+        { learningGoalId: id },
+        {
+          status: "pending",
+          sentCount: 0,
+        },
+        { new: true }
+      );
 
       resolve({
         status: "OK",
@@ -148,10 +141,66 @@ const updateStatus = (id, status) => {
     }
   });
 };
+const deleteLearningGoal = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const deletedGoal = await LearningGoal.findByIdAndDelete(id);
+      if (!deletedGoal) {
+        return resolve({
+          status: "ERR",
+          message: "Không tìm thấy mục tiêu học tập để xóa",
+        });
+      }
+
+      await Reminder.deleteMany({ learningGoalId: id });
+      resolve({
+        status: "OK",
+        message: "Xóa mục tiêu học tập thành công",
+        data: deletedGoal,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message || "Lỗi hệ thống",
+      });
+    }
+  });
+};
+const updateLearningGoal = async (id, data) => {
+  try {
+    // Loại bỏ các trường không cần thiết nếu tồn tại
+    const removeFields = ["_id", "__v", "createdAt", "updatedAt"];
+    const cleanData = { ...data };
+
+    removeFields.forEach((field) => {
+      if (field in cleanData) {
+        delete cleanData[field];
+      }
+    });
+
+    const updatedGoal = await LearningGoal.findByIdAndUpdate(id, cleanData, {
+      new: true,
+    });
+
+    return {
+      status: "OK",
+      message: "Cập nhật mục tiêu học tập thành công",
+      data: updatedGoal,
+    };
+  } catch (error) {
+    return {
+      status: "ERROR",
+      message: "Có lỗi xảy ra khi cập nhật mục tiêu học tập",
+      error: error.message,
+    };
+  }
+};
 
 //check trước rồi hẳn tạo (check Date đến chưa => tạo reminders để gửi mail)
 module.exports = {
   createLearningGoal,
   getAllLearningGoal,
   updateStatus,
+  deleteLearningGoal,
+  updateLearningGoal,
 };

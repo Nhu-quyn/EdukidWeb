@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const ImageWriteWord = ({
   _id,
   questionContent,
@@ -9,6 +9,7 @@ const ImageWriteWord = ({
   score,
   type,
   answer,
+  questionLevel,
   isEnd,
   isReview,
   userAnswer,
@@ -30,9 +31,9 @@ const ImageWriteWord = ({
 
   // Khi `isReview`, hiển thị lại đáp án cũ
   useEffect(() => {
-    if (isReview && userAnswer) {
+    if (isReview) {
       setInputValue(userAnswer);
-      checkAnswer(userAnswer);
+      checkAnswer(userAnswer || "");
     }
   }, [isReview]);
 
@@ -41,21 +42,33 @@ const ImageWriteWord = ({
     if (isEnd && !isReview) {
       const isCorrect =
         inputValue.trim().toLowerCase() === String(answer).toLowerCase();
-      setFeedback(
-        isCorrect ? `✅ Đúng! Đáp án: ${answer}` : `❌ Sai! Đáp án: ${answer}`
-      );
+      // setFeedback(
+      //   isCorrect ? `✅ Đúng! Đáp án: ${answer}` : `❌ Sai! Đáp án: ${answer}`
+      // );
       onUserSelect(_id, type, inputValue, isCorrect, score);
       localStorage.removeItem(localStorageKey);
     }
   }, [isEnd]);
 
   const checkAnswer = (value) => {
-    if (!value) return;
+    if (!isReview) {
+      if (!value) return;
+    }
     const isCorrect =
       value.trim().toLowerCase() === String(answer).toLowerCase();
-    setFeedback(
-      isCorrect ? `✅ Đúng! Đáp án: ${answer}` : `❌ Sai! Đáp án: ${answer}`
-    );
+    if (!value) {
+      setFeedback(
+        <>
+          ❌ Bạn không có câu trả lời!
+          <br />
+          Đáp án: {answer}
+        </>
+      );
+    } else {
+      setFeedback(
+        isCorrect ? `✅ Đúng! Đáp án: ${answer}` : `❌ Sai! Đáp án: ${answer}`
+      );
+    }
   };
 
   const handleInputChange = (e) => {
@@ -66,7 +79,12 @@ const ImageWriteWord = ({
 
   return (
     <Card>
-      <Header>{questionContent}</Header>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      <Header>
+        <Question>{questionContent}</Question>
+      </Header>
       <Content>
         <ImageContainer>
           <img src={image} alt="Question" />
@@ -77,7 +95,8 @@ const ImageWriteWord = ({
             placeholder="Nhập câu trả lời..."
             value={inputValue}
             onChange={(e) => handleInputChange(e)}
-            disabled={isReview} // Vô hiệu hóa khi đang review
+            disabled={isReview}
+            // readOnly={isReview} // Giữ khung nhưng không cho nhập
           />
           {/* {!isReview && (
             <CheckButton onClick={() => checkAnswer(inputValue)}>

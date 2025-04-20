@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
+import { Howl } from "howler";
 const MultipleChoice = ({
   _id,
   questionContent,
@@ -10,6 +11,7 @@ const MultipleChoice = ({
   score,
   answer,
   isReview,
+  questionLevel,
   isEnd,
   userAnswer = null,
   onUserSelect,
@@ -55,9 +57,15 @@ const MultipleChoice = ({
   // const checkAnswer = () => {
   //   setHasChecked(true);
   // };
-
+  // click mound
+  const clickMound = new Howl({
+    src: ["/Sound/click mound.wav"], // Âm thanh sai
+  });
   return (
     <Wrapper>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
       <LeftSide>
         <Question>{questionContent}</Question>
         <OptionsContainer>
@@ -69,6 +77,7 @@ const MultipleChoice = ({
                 onClick={() => {
                   if (!hasChecked) setSelected(option);
                   checkAnswer(option);
+                  clickMound.play();
                 }}
                 optionStyle={optionStyle}
               >
@@ -156,13 +165,13 @@ const GuideText = styled.span`
   color: #333;
 `;
 
-const Question = styled.h3`
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
-`;
+// const Question = styled.h3`
+//   font-size: 20px;
+//   font-weight: 600;
+//   color: #333;
+//   text-align: center;
+//   margin-bottom: 20px;
+// `;
 
 const OptionsContainer = styled.div`
   display: flex;

@@ -14,18 +14,16 @@ const getYoutubeVideoId = (url) => {
   return match && match[1].length === 11 ? match[1] : null;
 };
 
-const speak = (text) => {
-  const utterance = new SpeechSynthesisUtterance(text);
-  window.speechSynthesis.speak(utterance);
-};
-
 const VocabularyTopic = () => {
   const { topicId } = useParams();
   const [loading, setLoading] = useState(true);
   const [topic, setTopic] = useState(null);
   const [words, setWords] = useState([]);
   const [selectedWord, setSelectedWord] = useState(null);
-
+  const speak = (word) => {
+    const utterance = new SpeechSynthesisUtterance(word);
+    window.speechSynthesis.speak(utterance);
+  };
   useEffect(() => {
     const fetchVocabularies = async () => {
       try {
@@ -92,7 +90,6 @@ const VocabularyTopic = () => {
           ))}
         </WordGrid>
       </MainContent>
-      <Footer />
 
       {/* Modal hiển thị chi tiết từ vựng */}
       <Modal
@@ -121,6 +118,7 @@ const VocabularyTopic = () => {
           </div>
         )}
       </Modal>
+      <Footer />
     </Container>
   );
 };
@@ -139,12 +137,38 @@ const Container = styled.div`
 
 const MainContent = styled.main`
   padding: 20px;
+  // position: relative; // <== THÊM DÒNG NÀY
   width: 90%;
   max-width: 1200px;
   margin: auto;
   flex: 1;
 `;
+// const Container = styled.div`
+//   background: url(${ImageBackground}) no-repeat center center;
+//   background-attachment: fixed;
 
+//   min-height: 100vh;
+//   // padding: 20px;
+//   display: flex;
+//   flex-direction: column;
+//   background-size: cover;
+//   backdrop-filter: brightness(1.1) contrast(1.2);
+// `;
+
+// const MainContent = styled.main`
+//   padding: 60px 40px;
+//   position: relative; // <== THÊM DÒNG NÀY
+//   text-align: center;
+//   background-color: rgba(255, 255, 255, 0.85);
+//   // background: #fffbec;
+//   max-width: 1300px;
+//   margin: auto;
+//   border-radius: 12px;
+//   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+//   @media (max-width: 768px) {
+//     padding: 40px 20px; /* Điều chỉnh padding cho màn hình nhỏ */
+//   }
+// `;
 const VideoContainer = styled.div`
   width: 100%;
   display: flex;
@@ -160,11 +184,30 @@ const StyledIframe = styled.iframe`
   border-radius: 12px;
 `;
 
+// const WordGrid = styled.div`
+//   display: grid;
+//   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+//   gap: 12px;
+//   justify-content: center;
+// `;
 const WordGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(5, 1fr); /* 5 cột cho màn hình lớn */
   gap: 12px;
   justify-content: center;
+
+  /* Điều chỉnh cho màn hình nhỏ */
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr); /* 3 cột cho màn hình trung bình */
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* 2 cột cho màn hình nhỏ */
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr; /* 1 cột cho màn hình rất nhỏ */
+  }
 `;
 
 const WordCard = styled.div`

@@ -164,12 +164,12 @@ const Container = styled.div`
 `;
 
 const MainContent = styled.main`
-  padding: 50px 20px;
+  padding: 30px 40px;
   text-align: center;
   background-color: rgba(241, 241, 241, 0.9);
   max-width: 1200px;
   margin: auto;
-  flex: 1;
+  // flex: 1;
   border-radius: 12px;
   @media (max-width: 1300px) {
     padding: 25px 10px;

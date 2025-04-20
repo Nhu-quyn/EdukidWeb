@@ -8,7 +8,8 @@ import NavComponent from "../../components/nav/nav";
 import AddReviewForm from "../../components/forms/AddReviewForm";
 import * as ActivityService from "../../services/ActivityService";
 import ReviewsTable from "../../components/table/ReviewTable";
-
+import * as QuestionService from "../../services/QuestionService";
+import * as TopicService from "../../services/TopicService";
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -59,10 +60,54 @@ const ReviewsAndTestsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [editingReview, setEditingReview] = useState(null);
-
+  const [questions, setQuestions] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [questionTypes, setQuestionTypes] = useState([]);
   useEffect(() => {
     fetchReviews();
+    fetchTopics();
+    fetchQuestions();
+    fetchTypes();
   }, []);
+  const fetchTopics = async () => {
+    try {
+      const response = await TopicService.getAllTopic();
+      setTopics(response.data);
+    } catch (error) {
+      message.error("Lỗi khi lấy danh sách chủ đề!");
+    }
+  };
+  const fetchQuestions = async () => {
+    try {
+      const response = await QuestionService.getAllQuestions();
+      setQuestions(response.data);
+      console.log(response.data);
+    } catch (error) {
+      message.error("Lỗi khi lấy danh sách câu hỏi!");
+    }
+  };
+  const fetchTypes = async () => {
+    try {
+      const excludeTypes = [
+        "listen_choose_word",
+        "listen_choose_image",
+        "image_match",
+      ];
+
+      const response = await QuestionService.getAllQuestionTypes();
+
+      // Loại bỏ các phần tử có questionTypeId trong excludeTypes
+      const filteredQuestionTypes = response.data.filter(
+        (questionType) => !excludeTypes.includes(questionType.questionTypeId)
+      );
+
+      setQuestionTypes(filteredQuestionTypes); // Cập nhật danh sách questionTypes sau khi lọc
+
+      // console.log(response.data);
+    } catch (error) {
+      message.error("Lỗi khi lấy danh sách câu hỏi!");
+    }
+  };
 
   const fetchReviews = async () => {
     try {
@@ -105,6 +150,7 @@ const ReviewsAndTestsPage = () => {
     try {
       let response;
       if (editingReview) {
+        console.log(data);
         response = await ActivityService.updateActivity(
           editingReview._id,
           data
@@ -157,6 +203,10 @@ const ReviewsAndTestsPage = () => {
 
       <AddReviewForm
         visible={isModalOpen}
+        topics={topics}
+        // mode={editingReview?.mode || "review"}
+        questions={questions}
+        questionTypes={questionTypes}
         onCancel={handleCloseModal}
         onSubmit={handleSubmit}
         initialValues={editingReview}

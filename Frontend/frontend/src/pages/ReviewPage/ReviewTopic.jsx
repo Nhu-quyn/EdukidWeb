@@ -203,6 +203,7 @@ const MainContent = styled.main`
   background-color: rgba(255, 255, 255, 0.9);
   max-width: 1200px;
   margin: 30px auto;
+  flex: 1;
   border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 

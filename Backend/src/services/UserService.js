@@ -280,6 +280,7 @@ const loginWithGoogle = async (token) => {
         email,
         avatar: picture,
         username: name,
+        isOAuth: true,
       });
       return {
         status: "OK",
@@ -802,6 +803,10 @@ const updateLeaderBoard = async (userId, categoryId) => {
       await entry.save();
     });
 
+    overallEntry = await LeaderBoard.findOne({
+      userId,
+      categoryId: overallCategory._id,
+    });
     return {
       status: "OK",
       message: `🎉 Điểm số đã cập nhật! Hạng trong danh mục: #${leaderBoardEntry.rank}, Hạng tổng: #${overallEntry.rank}.`,
@@ -888,8 +893,8 @@ const updateLearningProgress = async (activityId, userId, answer_questions) => {
         }
       } else {
         if (
-          String(question.correctAnswer).trim() ===
-          String(selectedAnswer).trim()
+          String(question.correctAnswer).trim().toLowerCase() ===
+          String(selectedAnswer).trim().toLowerCase()
         ) {
           newScore += question.score;
           correctCount++;
@@ -933,6 +938,7 @@ const updateLearningProgress = async (activityId, userId, answer_questions) => {
       checkActivity.categoryId &&
       checkActivity.categoryId.categoryName.trim().toLowerCase() !== "game"
     ) {
+      console.log("newScore", newScore);
       if (newScore > learningProgress.score) {
         updateLearningProgress = await LearningProgress.findOneAndUpdate(
           { userId, activityId },
@@ -953,15 +959,21 @@ const updateLearningProgress = async (activityId, userId, answer_questions) => {
       userId,
       checkActivity.categoryId._id
     );
+    console.log(updateLeaderBoardObj);
     return {
       status: "OK",
       message,
       data: {
+        newScore,
         score: updateLearningProgress.score,
         percentComplete,
         correctCount,
         incorrectCount,
-        rank: updateLeaderBoardObj.data.categoryRank,
+        rank: updateLeaderBoardObj.data.overallRank,
+        // categoryRank: leaderBoardEntry.rank,
+        // overallRank: overallEntry.rank,
+        scoreTotal: updateLeaderBoardObj.data.totalScore,
+        // score: totalScore: overallEntry.score,
       },
     };
   } catch (e) {
@@ -983,7 +995,7 @@ const updateLearningProgress = async (activityId, userId, answer_questions) => {
 const getAllLeaderBoard = async () => {
   try {
     const leaderBoards = await LeaderBoard.find()
-      .populate("userId", "username avatar")
+      .populate("userId", "_id username avatar")
       .populate("categoryId", "categoryName");
     return {
       status: "OK",
@@ -997,7 +1009,68 @@ const getAllLeaderBoard = async () => {
     };
   }
 };
+const updateAvatar = async (userId, avatar) => {
+  try {
+    const checkUser = await User.findById(userId);
+    if (!checkUser) {
+      return {
+        status: "ERR",
+        message: "The user is not defined",
+      };
+    }
+    console.log(avatar);
+    const updateAvatarUser = await User.findByIdAndUpdate(userId, {
+      avatar: avatar,
+    });
+    return {
+      status: "OK",
+      message: "Success",
+      data: updateAvatarUser,
+    };
+  } catch (e) {
+    return {
+      status: "ERR",
+      message: e.message,
+    };
+  }
+};
+const updatePassword = async (userId, currentPassword, newPassword) => {
+  try {
+    const checkUser = await User.findById(userId);
+    if (!checkUser) {
+      return {
+        status: "ERR",
+        message: "The user is not defined",
+      };
+    }
+    const comparePassword = bcrypt.compareSync(
+      currentPassword,
+      checkUser.password
+    );
+    if (!comparePassword) {
+      return {
+        status: "ERR",
+        message: "Nhập mật khẩu hiện tại không đúng!",
+      };
+    }
+    const hashPassword = bcrypt.hashSync(newPassword, 10);
+    const updatePasswordUser = await User.findByIdAndUpdate(userId, {
+      password: hashPassword,
+    });
 
+    return {
+      status: "OK",
+      message: "Success",
+      data: updatePasswordUser,
+      // data: updateAvatarUser,
+    };
+  } catch (e) {
+    return {
+      status: "ERR",
+      message: e.message,
+    };
+  }
+};
 //chua test
 
 module.exports = {
@@ -1011,6 +1084,8 @@ module.exports = {
   updateLearningProgress,
   updateLeaderBoard,
   getAllLeaderBoard,
+  updateAvatar,
+  updatePassword,
 };
 //xoa chua dc mở
 // const mau = async (token) => {

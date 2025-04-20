@@ -340,7 +340,7 @@ const GameStartPage = () => {
           <FaHome size={20} /> Trang chủ
         </NavButton>
         <NavButton onClick={() => (window.location.href = "/ranking")}>
-          <FaTrophy size={20} /> Thành tích
+          <FaTrophy size={20} /> Xếp Hạng
         </NavButton>
         <NavButton onClick={toggleTopics}>
           <FaList size={20} /> Chủ đề

@@ -27,6 +27,14 @@ const reminderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    sentCount: {
+      type: Number,
+      default: 0,
+    },
+    lastSentAt: {
+      type: Date,
+      default: null, // Lưu trữ thời gian gửi gần nhất
+    },
     // status: String("pending" | "sent" | "dismissed"),
     //
   },

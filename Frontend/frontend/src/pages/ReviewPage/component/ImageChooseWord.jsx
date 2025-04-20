@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
+import { Howl } from "howler";
 const ImageChooseWord = ({
   _id,
   questionContent,
   type,
   score,
+  questionLevel,
   image,
   activityId, // Thêm activityId để theo dõi sự thay đổi
   options,
@@ -16,10 +18,14 @@ const ImageChooseWord = ({
   onUserSelect,
 }) => {
   const localStorageKey = `selected-${_id}-${activityId}`; // Tạo key duy nhất dựa trên `_id` & `activityId`
-  const [selected, setSelected] = useState(() => {
-    return localStorage.getItem(localStorageKey) || "";
+  // const [selected, setSelected] = useState(() => {
+  //   return localStorage.getItem(localStorageKey) || "";
+  // });
+  // click mound
+  const clickMound = new Howl({
+    src: ["/Sound/click mound.wav"], // Âm thanh sai
   });
-
+  const [selected, setSelected] = useState("");
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
@@ -34,7 +40,7 @@ const ImageChooseWord = ({
   const checkAnswer = (option) => {
     if (selected) return;
     setSelected(option);
-    localStorage.setItem(localStorageKey, option); // Lưu dữ liệu dựa trên activityId
+    // localStorage.setItem(localStorageKey, option); // Lưu dữ liệu dựa trên activityId
   };
 
   // Khi `isEnd`, kiểm tra kết quả & gọi `onUserSelect`
@@ -43,13 +49,18 @@ const ImageChooseWord = ({
       const isCorrectAnswer = selected === answer;
       setIsCorrect(isCorrectAnswer);
       onUserSelect(_id, type, selected, selected === answer, score);
-      localStorage.removeItem(localStorageKey); // Xóa dữ liệu sau khi kiểm tra
+      // localStorage.removeItem(localStorageKey); // Xóa dữ liệu sau khi kiểm tra
     }
   }, [isEnd]);
 
   return (
     <Card>
-      <Header>{questionContent}</Header>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      <Header>
+        <Question>{questionContent}</Question>
+      </Header>
       <Content>
         <ImageWrapper>
           <img src={image} alt="Question" />
@@ -77,6 +88,7 @@ const ImageChooseWord = ({
                 onClick={() => {
                   if (!hasChecked) setSelected(option);
                   checkAnswer(option);
+                  clickMound.play();
                 }}
                 style={{ backgroundColor: bgColor, borderColor: borderColor }}
               >
@@ -104,6 +116,17 @@ const ImageChooseWord = ({
           </InstructionItem>
         </Instructions>
       )}
+      {/* {feedback && <Feedback>{feedback}</Feedback>} */}
+      {hasChecked &&
+        (selected !== null && selected !== "" ? (
+          <Feedback>
+            {selected === answer
+              ? `✅ Đúng! Đáp án: ${answer}`
+              : `❌ Sai! Đáp án: ${answer}`}
+          </Feedback>
+        ) : (
+          <Feedback>{` ❌ Bạn không có câu trả lời. Đáp án: ${answer}`}</Feedback>
+        ))}
     </Card>
   );
 };
@@ -210,5 +233,12 @@ const ColorBox = styled.div`
 
 const InstructionText = styled.span`
   font-size: 14px;
+  color: #333;
+`;
+const Feedback = styled.div`
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
   color: #333;
 `;

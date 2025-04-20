@@ -38,6 +38,31 @@ export const updateStatus = async (id, status) => {
     throw error;
   }
 };
+export const updateLearningGoal = async (id, data) => {
+  console.log("API URL:", `${api_learningGoal}/update/${id}`);
+  try {
+    const response = await axios.put(`${api_learningGoal}/update/${id}`, data);
+    // console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
+export const deleteLearningGoal = async (id) => {
+  console.log("API URL:", `${api_learningGoal}/delete/${id}`);
+  try {
+    const response = await axios.delete(`${api_learningGoal}/delete/${id}`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
+// router.delete("/delete/:id", LearningController.deleteLearningGoal);
+// router.put("/update/:id", LearningController.updateLearningGoal);
+
 // router.get("/get-all/:userId", LearningController.getAllLearningGoal);
 // export const deleteLearningGoal = async (id) => {
 //   try {

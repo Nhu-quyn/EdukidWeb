@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaGamepad,
@@ -7,86 +7,225 @@ import {
   FaBullhorn,
   FaChalkboardTeacher,
   FaPlayCircle,
+  FaMedal,
+  FaTrophy,
 } from "react-icons/fa";
 import Header from "../../components/header/header";
 import Footer from "../../components/footer/footer";
 import styled from "styled-components";
 import ImageBackground from "../../assets/backgroundgame2.jpg";
 import WelcomeImage from "../../assets/welcome.jpg";
-
+import { Fireworks } from "fireworks-js";
+// import dynamic from "next/dynamic";
+// const WelcomeTitle = dynamic(() => import("../../components/WelcomeTitle"), {
+//   ssr: false,
+// });
+// import AutoMusic from "../../components/mp3/AutoMusic";
+import WelcomeTitle from "../../components/Welcome/Welcome";
+import music from "../../mp3/kids-happy-music-320636.mp3";
 const HomePage = () => {
+  const audioRef = useRef(null);
+  const [isInteracted, setIsInteracted] = useState(false);
+  const fireworksRef = useRef(null);
+
+  // useEffect(() => {
+  //   const audio = audioRef.current;
+
+  //   // Bỏ mute sau 1 giây
+  //   const timeout = setTimeout(() => {
+  //     if (audio) {
+  //       audio.muted = false;
+  //       audio.play().catch((err) => {
+  //         console.log("Không thể phát nhạc:", err);
+  //       });
+  //     }
+  //   }, 1000); // sau 1 giây
+
+  //   // Lặp lại nhạc trước khi kết thúc 5s
+  //   const handleTimeUpdate = () => {
+  //     if (audio?.duration && audio.currentTime >= audio.duration - 5) {
+  //       audio.currentTime = 0;
+  //       audio.play();
+  //     }
+  //   };
+
+  //   audio?.addEventListener("timeupdate", handleTimeUpdate);
+
+  //   return () => {
+  //     clearTimeout(timeout);
+  //     audio?.removeEventListener("timeupdate", handleTimeUpdate);
+  //   };
+  // }, []);
+  const handleUserInteraction = () => {
+    if (!isInteracted) {
+      const audio = audioRef.current;
+      if (audio) {
+        // Nhẹ nhàng khởi động nhạc nền
+        audio.muted = false;
+        audio.volume = 0.25; // 25-30% volume là đủ nghe mà không lấn tiếng
+        audio
+          .play()
+          .then(() => {
+            setIsInteracted(true);
+
+            // Delay 500ms trước khi cho phép speech hoạt động (tránh đụng nhau)
+            setTimeout(() => {
+              window.speechSynthesis.cancel(); // Đảm bảo không bị treo voice
+            }, 500);
+          })
+          .catch((err) => {
+            console.log("Không thể phát nhạc nền:", err);
+          });
+      }
+    }
+  };
+  useEffect(() => {
+    if (fireworksRef.current) {
+      const fireworks = new Fireworks(fireworksRef.current, {
+        hue: { min: 0, max: 360 },
+        delay: { min: 15, max: 30 },
+        rocketsPoint: { min: 0, max: 100 },
+        speed: 2,
+        acceleration: 1.05,
+        friction: 0.98,
+        gravity: 1.5,
+        particles: 100,
+        trace: 3,
+        explosion: 5,
+        boundaries: {
+          top: 50,
+          bottom: fireworksRef.current.clientHeight,
+          left: 0,
+          right: fireworksRef.current.clientWidth,
+        },
+        brightness: { min: 50, max: 80 },
+        decay: { min: 0.015, max: 0.03 },
+        mouse: { click: false, move: false, max: 1 },
+      });
+
+      fireworks.start();
+
+      return () => fireworks.stop();
+    }
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    const handleTimeUpdate = () => {
+      // Lặp lại trước khi hết 5s
+      if (audio?.duration && audio.currentTime >= audio.duration - 5) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    };
+
+    audio?.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      audio?.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, []);
+
   return (
-    <Container>
-      <Header />
-      <MainContent>
-        <WelcomeSection>
-          <WelcomeImageStyled
-            src={WelcomeImage}
-            alt="Chào mừng đến với EduKids!"
-          />
-          <Title>🎉 Chào mừng đến với EduKids!</Title>
-          <Description>
-            Học vui, học sáng tạo – Khám phá tiếng Anh qua trò chơi & bài học
-            thú vị!
-          </Description>
-        </WelcomeSection>
+    <div onClick={handleUserInteraction} style={{ cursor: "pointer" }}>
+      <Container>
+        <Header />
 
-        {/* Giới thiệu về EduKids */}
-        <IntroSection>
-          <IntroTitle>🌈 Tại sao chọn EduKids?</IntroTitle>
-          <IntroText>
-            EduKids mang đến phương pháp học tiếng Anh sáng tạo, kết hợp giữa
-            học lý thuyết và thực hành qua các trò chơi sinh động, giúp trẻ em
-            học một cách tự nhiên và vui vẻ.
-          </IntroText>
-        </IntroSection>
+        <MainContent>
+          {/* <audio ref={audioRef} src="/music.mp3" autoPlay muted loop>
+          <source src={music} type="audio/mpeg" />
+          Trình duyệt của bạn không hỗ trợ audio.
+        </audio> */}
+          <audio ref={audioRef} src={music} muted loop />
+          {/* <audio ref={audioRef} autoPlay>
+          <source src={music} type="audio/mpeg" />
+          Trình duyệt của bạn không hỗ trợ audio.
+        </audio> */}
+          <RankingButton to="/ranking">
+            <FaTrophy />
+          </RankingButton>
+          <WelcomeSection style={{ position: "relative" }}>
+            <div
+              ref={fireworksRef}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                zIndex: 10,
+                pointerEvents: "none",
+              }}
+            />
+            <WelcomeImageStyled
+              src={WelcomeImage}
+              alt="Chào mừng đến với EduKids!"
+            />
+            <Title>🎉 Chào mừng đến với EduKids!</Title>
+            <Description>
+              Học vui, học sáng tạo – Khám phá tiếng Anh qua trò chơi & bài học
+              thú vị!
+            </Description>
+          </WelcomeSection>
 
-        {/* Sứ mệnh của website */}
-        <MissionSection>
-          <MissionTitle>
-            <StyledBullhornIcon /> Sứ mệnh của EduKids
-          </MissionTitle>
-          <MissionText>
-            Mang đến trải nghiệm học tập thú vị, giúp trẻ em tiếp cận tiếng Anh
-            một cách tự nhiên và hiệu quả thông qua trò chơi và bài học tương
-            tác.
-          </MissionText>
-        </MissionSection>
+          {/* Giới thiệu về EduKids */}
+          <IntroSection>
+            <IntroTitle>🌈 Tại sao chọn EduKids?</IntroTitle>
+            <IntroText>
+              EduKids mang đến phương pháp học tiếng Anh sáng tạo, kết hợp giữa
+              học lý thuyết và thực hành qua các trò chơi sinh động, giúp trẻ em
+              học một cách tự nhiên và vui vẻ.
+            </IntroText>
+          </IntroSection>
 
-        {/* Tính năng nổi bật */}
-        <MissionSection>
-          <SectionTitle>🌟 Những tính năng nổi bật</SectionTitle>
-          <FeatureSection>
-            <FeatureCard href="/vocabulary">
-              <FaBookOpen size={50} color="#ff4081" />
-              <FeatureTitle>📖 Học từ vựng siêu vui</FeatureTitle>
-              <FeatureText>
-                Học từ mới với hình ảnh, âm thanh sinh động.
-              </FeatureText>
-            </FeatureCard>
-            <FeatureCard href="/game">
-              <FaGamepad size={50} color="#ffca28" />
-              <FeatureTitle>🎮 Chơi game – Học tiếng Anh</FeatureTitle>
-              <FeatureText>
-                Rèn luyện kỹ năng qua những trò chơi hấp dẫn.
-              </FeatureText>
-            </FeatureCard>
-          </FeatureSection>
-        </MissionSection>
-        {/* Lượt đăng ký*/}
-        <DownloadSection>
-          <DownloadTitle>
-            <FaUsersIcon />
-            Đã có hơn 1290+ người dùng đăng ký
-          </DownloadTitle>
-          <RegisterLink>
-            Đăng ký tại <StyledLink to="/register">đây</StyledLink> để nhận thêm
-            nhiều trải nghiệm thú vị!
-          </RegisterLink>
-        </DownloadSection>
-      </MainContent>
-      <Footer />
-    </Container>
+          {/* Sứ mệnh của website */}
+          <MissionSection>
+            <MissionTitle>
+              <StyledBullhornIcon /> Sứ mệnh của EduKids
+            </MissionTitle>
+            <MissionText>
+              Mang đến trải nghiệm học tập thú vị, giúp trẻ em tiếp cận tiếng
+              Anh một cách tự nhiên và hiệu quả thông qua trò chơi và bài học
+              tương tác.
+            </MissionText>
+          </MissionSection>
+
+          {/* Tính năng nổi bật */}
+          <MissionSection>
+            <SectionTitle>🌟 Những tính năng nổi bật</SectionTitle>
+            <FeatureSection>
+              <FeatureCard href="/vocabulary">
+                <FaBookOpen size={50} color="#ff4081" />
+                <FeatureTitle>📖 Học từ vựng siêu vui</FeatureTitle>
+                <FeatureText>
+                  Học từ mới với hình ảnh, âm thanh sinh động.
+                </FeatureText>
+              </FeatureCard>
+              <FeatureCard href="/game">
+                <FaGamepad size={50} color="#ffca28" />
+                <FeatureTitle>🎮 Chơi game – Học tiếng Anh</FeatureTitle>
+                <FeatureText>
+                  Rèn luyện kỹ năng qua những trò chơi hấp dẫn.
+                </FeatureText>
+              </FeatureCard>
+            </FeatureSection>
+          </MissionSection>
+          {/* Lượt đăng ký*/}
+          <DownloadSection>
+            <DownloadTitle>
+              <FaUsersIcon />
+              Đã có hơn 1290+ người dùng đăng ký
+            </DownloadTitle>
+            <RegisterLink>
+              Đăng ký tại <StyledLink to="/register">đây</StyledLink> để nhận
+              thêm nhiều trải nghiệm thú vị!
+            </RegisterLink>
+          </DownloadSection>
+        </MainContent>
+        <Footer />
+      </Container>
+    </div>
   );
 };
 
@@ -94,6 +233,7 @@ const HomePage = () => {
 const Container = styled.div`
   background: url(${ImageBackground}) no-repeat center center;
   background-attachment: fixed;
+
   min-height: 100vh;
   // padding: 20px;
   display: flex;
@@ -104,6 +244,7 @@ const Container = styled.div`
 
 const MainContent = styled.main`
   padding: 60px 40px;
+  position: relative; // <== THÊM DÒNG NÀY
   text-align: center;
   background-color: rgba(255, 255, 255, 0.85);
   // background: #fffbec;
@@ -319,5 +460,43 @@ const FaUsersIcon = styled(FaUsers)`
     size: 30px;
   }
 `;
+const AchievementIcon = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 42px;
+  color: #ffca28;
+  z-index: 999;
 
+  @media (max-width: 768px) {
+    font-size: 32px;
+    top: 15px;
+    right: 20px;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
+  }
+`;
+const RankingButton = styled(Link)`
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 60px;
+  color: #ffc107;
+  z-index: 10;
+  transition: transform 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    transform: scale(1.2);
+    color: #ffdd00;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+    top: 15px;
+    right: 20px;
+  }
+`;
 export default HomePage;

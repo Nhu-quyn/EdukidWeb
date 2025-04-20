@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Typography, message, Alert } from "antd";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 import {
   CheckCircleOutlined,
   AudioOutlined,
@@ -24,6 +24,8 @@ const WordListenSpeak = ({
   score,
   answer,
   questionLevel,
+  // setCurrentId,
+  // currentId,
   userAnswer,
   isReview,
   isEnd,
@@ -36,10 +38,11 @@ const WordListenSpeak = ({
   const [attempts, setAttempts] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
   // const [answer, setAnswer] = useState(initialAnswer);
+  const [currentId, setCurrentId] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [icon, setIcon] = useState(<AudioOutlined />);
   const [recordedAnswer, setRecordedAnswer] = useState(userAnswer || "");
-
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const {
     transcript,
     resetTranscript,
@@ -63,6 +66,8 @@ const WordListenSpeak = ({
       const savedAnswer = localStorage.removeItem(localStorageKey);
       if (savedAnswer) setRecordedAnswer(savedAnswer);
     }
+    setHasSubmitted(false);
+    setAttempts(0);
   }, [_id, activityId]);
   useEffect(() => {
     if (isReview) {
@@ -76,8 +81,27 @@ const WordListenSpeak = ({
       }
     }
   }, [isReview]);
+  // useEffect(() => {
+  //   if (isEnd && !isReview) {
+  //     const finalAnswer =
+  //       recordedAnswer && recordedAnswer.trim() !== "" ? recordedAnswer : false;
+  //     const finalCorrect =
+  //       recordedAnswer && recordedAnswer.trim() !== "" ? isCorrect : false;
+
+  //     setFeedback(
+  //       finalAnswer
+  //         ? finalCorrect
+  //           ? "🎉 Đúng rồi!"
+  //           : `❌ Sai! Đáp án: ${answer}`
+  //         : "⚠️ Bạn chưa trả lời!"
+  //     );
+
+  //     onUserSelect(_id, type, finalAnswer, finalCorrect, score);
+  //     localStorage.removeItem(localStorageKey);
+  //   }
+  // }, [isEnd]);
   useEffect(() => {
-    if (isEnd && !isReview) {
+    if (isEnd && !isReview && !hasSubmitted) {
       const finalAnswer =
         recordedAnswer && recordedAnswer.trim() !== "" ? recordedAnswer : false;
       const finalCorrect =
@@ -93,18 +117,23 @@ const WordListenSpeak = ({
 
       onUserSelect(_id, type, finalAnswer, finalCorrect, score);
       localStorage.removeItem(localStorageKey);
+      setHasSubmitted(true);
     }
   }, [isEnd]);
-
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
       setFeedback("Trình duyệt không hỗ trợ ghi âm giọng nói.");
       return;
     }
     if (!listening && transcript) {
-      checkAnswer();
+      // checkAnswer();
+      console.log(currentId);
+      if (_id !== currentId) return;
+      if (transcript) {
+        checkAnswer();
+      }
     }
-  }, [listening]);
+  }, [listening, transcript, currentId]);
 
   const playWord = () => {
     const utterance = new SpeechSynthesisUtterance(answer);
@@ -117,25 +146,58 @@ const WordListenSpeak = ({
       .replace(/[^\w\s]/g, "")
       .trim();
 
+  // const checkAnswer = () => {
+  //   if (!transcript || transcript.trim() === "") {
+  //     setFeedback("⚠️ Bạn chưa nói đáp án!");
+  //     return;
+  //   }
+  //   const cleanedTranscript = cleanText(transcript);
+  //   const cleanedWord = cleanText(answer);
+  //   if (cleanedTranscript === cleanedWord) {
+  //     setFeedback("🎉 Đúng rồi!");
+  //     setIsCorrect(true);
+  //     setRecordedAnswer(transcript);
+  //     onUserSelect(_id, type, true, true, score);
+  //     // const handleSelectAnswer = (
+  //     //   questionId,
+  //     //   type,
+  //     //   selectedAnswer,
+  //     //   isCorrect,
+  //     //   score
+  //     // ) => {
+  //   } else {
+  //     setAttempts((prev) => {
+  //       const newAttempts = prev + 1;
+  //       if (newAttempts >= 5) {
+  //         onUserSelect(_id, type, false, false, score);
+  //         setFeedback("Bạn hãy thử lại sau nhé!");
+  //         message.error("Bạn hãy thử lại sau nhé!");
+  //       } else {
+  //         setFeedback("❌ Sai! Hãy thử lại.");
+  //         message.error("❌ Sai! Hãy thử lại.");
+  //       }
+  //       return newAttempts;
+  //     });
+  //     setRecordedAnswer(transcript);
+  //   }
+  // };
   const checkAnswer = () => {
+    if (hasSubmitted) return; // tránh gọi lại nhiều lần
+
     if (!transcript || transcript.trim() === "") {
       setFeedback("⚠️ Bạn chưa nói đáp án!");
       return;
     }
+
     const cleanedTranscript = cleanText(transcript);
     const cleanedWord = cleanText(answer);
+
     if (cleanedTranscript === cleanedWord) {
       setFeedback("🎉 Đúng rồi!");
       setIsCorrect(true);
       setRecordedAnswer(transcript);
       onUserSelect(_id, type, true, true, score);
-      // const handleSelectAnswer = (
-      //   questionId,
-      //   type,
-      //   selectedAnswer,
-      //   isCorrect,
-      //   score
-      // ) => {
+      setHasSubmitted(true); // ✅ đánh dấu đã gửi
     } else {
       setAttempts((prev) => {
         const newAttempts = prev + 1;
@@ -143,6 +205,7 @@ const WordListenSpeak = ({
           onUserSelect(_id, type, false, false, score);
           setFeedback("Bạn hãy thử lại sau nhé!");
           message.error("Bạn hãy thử lại sau nhé!");
+          setHasSubmitted(true); // ✅ đánh dấu đã gửi
         } else {
           setFeedback("❌ Sai! Hãy thử lại.");
           message.error("❌ Sai! Hãy thử lại.");
@@ -152,6 +215,7 @@ const WordListenSpeak = ({
       setRecordedAnswer(transcript);
     }
   };
+
   // const handleToggleRecording = () => {
   //   if (attempts >= 5 || isCorrect || isReview) return;
 
@@ -168,14 +232,23 @@ const WordListenSpeak = ({
   //   setIsRecording(!isRecording);
   // };
   const handleStartRecording = () => {
+    setIsRecording(true);
     if (attempts >= 5 || isCorrect || isReview) return;
     resetTranscript();
+    // 👉 Gán _id của câu hiện tại vào currentId
+    if (setCurrentId) {
+      setCurrentId(_id);
+    }
+
     SpeechRecognition.startListening();
     setFeedback("Đang ghi âm...");
   };
 
   const handleStopRecording = () => {
+    setIsRecording(false);
+    setFeedback("");
     SpeechRecognition.stopListening();
+    if (attempts >= 5 || isCorrect || isReview) return;
   };
 
   if (!browserSupportsSpeechRecognition) {
@@ -185,14 +258,18 @@ const WordListenSpeak = ({
   return (
     <Card>
       {/* Tiêu đề + Mức độ + Điểm số */}
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      {/* <LevelBadge>Level: {questionLevel}</LevelBadge> */}
       <Header>
-        <QuestionText>Nghe và nói lại: </QuestionText>
-        <InfoBox>
-          <LevelBadge>Level: {questionLevel}</LevelBadge>
-          <Score>Điểm: {score}</Score>
-        </InfoBox>
-      </Header>
+        <Question>Nghe và nói lại: </Question>
 
+        {/* <InfoBox>
+          <Score>Điểm: {score}</Score>
+        </InfoBox> */}
+      </Header>
+      {/* <Text> {transcript}</Text> */}
       {/* Hiển thị từ cần nói */}
       <WordDisplay>
         {answer} {isCorrect && <CheckIcon />}{" "}
@@ -206,13 +283,13 @@ const WordListenSpeak = ({
         {!isReview && (
           <ActionButtonCircle
             onClick={isRecording ? handleStopRecording : handleStartRecording}
-            disabled={isCorrect}
+            // disabled={isCorrect}
           >
             {icon}
           </ActionButtonCircle>
         )}
       </ButtonRow>
-      <p>{transcript}</p>
+      {_id === currentId && <p>{transcript}</p>}
 
       {/* Feedback */}
       <FeedbackSection isCorrect={isCorrect} attempts={attempts}>
@@ -220,12 +297,12 @@ const WordListenSpeak = ({
       </FeedbackSection>
 
       {/* Lượt thử */}
-      {!isReview && <AttemptText>Lượt thử: {attempts}/5</AttemptText>}
+      {/* {!isReview && <AttemptText>Lượt thử: {attempts}/5</AttemptText>} */}
 
       {/* Khi xem lại, hiển thị câu đã nói */}
-      {isReview && recordedAnswer && (
+      {/* {isReview && recordedAnswer && (
         <ReviewAnswer>Đáp án bạn đã nói: "{recordedAnswer}"</ReviewAnswer>
-      )}
+      )} */}
     </Card>
   );
 };
@@ -245,7 +322,7 @@ const Card = styled.div`
 const Header = styled.div`
   margin-bottom: 18px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 `;
 
@@ -255,14 +332,14 @@ const QuestionText = styled.h3`
   color: #444;
 `;
 
-const LevelBadge = styled.div`
-  padding: 6px 14px;
-  border-radius: 20px;
-  // background: linear-gradient(45deg, #ff9a9e, #fad0c4);
-  color: #444;
-  font-size: 1.2rem;
-  font-weight: bold;
-`;
+// const LevelBadge = styled.div`
+//   padding: 6px 14px;
+//   border-radius: 20px;
+//   // background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+//   color: #444;
+//   font-size: 1.2rem;
+//   font-weight: bold;
+// `;
 
 const WordDisplay = styled.h2`
   font-size: 40px;

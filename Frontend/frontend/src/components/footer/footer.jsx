@@ -13,11 +13,11 @@ const Footer = () => {
 const FooterContainer = styled.footer`
   background-color: #ffb3b3; /* Nền hài hòa với header */
   color: #333; /* Màu chữ tối, dễ đọc */
-  // padding: 20px;
+  padding: 20px;
   text-align: center;
   font-size: 14px;
   opacity: 0.9;
-  position: fixed;
+  // position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;

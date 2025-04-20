@@ -279,6 +279,8 @@ const QuestionsManagementPage = () => {
               questions={questions}
               onView={handleView}
               onEdit={handleEdit}
+              topics={topics}
+              questionTypes={questionTypes}
               onDelete={handleDelete}
               onDeleteAll={handleDeleteAll}
               onAddToGame={handleAddToGame}

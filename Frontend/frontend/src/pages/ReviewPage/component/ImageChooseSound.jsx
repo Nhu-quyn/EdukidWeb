@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { SoundOutlined } from "@ant-design/icons";
-
+import { Howl } from "howler";
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const ImageChooseSound = ({
   _id,
   activityId, // Nhận thêm activityId để kiểm tra sự thay đổi
@@ -21,26 +22,29 @@ const ImageChooseSound = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  useEffect(() => {
-    const savedSelected = localStorage.getItem(`selected-${_id}-${activityId}`);
-    if (savedSelected) {
-      setSelected(savedSelected);
-    }
-  }, [_id, activityId]);
+  // useEffect(() => {
+  //   const savedSelected = localStorage.getItem(`selected-${_id}-${activityId}`);
+  //   if (savedSelected) {
+  //     setSelected(savedSelected);
+  //   }
+  // }, [_id, activityId]);
 
   const checkAnswer = (option) => {
     setSelected(option);
-    localStorage.setItem(`selected-${_id}-${activityId}`, option);
+    // localStorage.setItem(`selected-${_id}-${activityId}`, option);
   };
 
   useEffect(() => {
     if (isEnd && !isReview) {
       // setIsCorrect(selected === answer);
       onUserSelect(_id, type, selected, selected === answer, score);
-      localStorage.removeItem(`selected-${_id}-${activityId}`);
+      // localStorage.removeItem(`selected-${_id}-${activityId}`);
     }
   }, [isEnd]);
-
+  // click mound
+  const clickMound = new Howl({
+    src: ["/Sound/click mound.wav"], // Âm thanh sai
+  });
   useEffect(() => {
     if (isReview) {
       setSelected(userAnswer);
@@ -72,9 +76,12 @@ const ImageChooseSound = ({
 
   return (
     <Card>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
       <Header>
-        <QuestionText>{questionContent}</QuestionText>
-        {questionLevel && <LevelBadge>Level: {questionLevel}</LevelBadge>}
+        <Question>{questionContent}</Question>
+        {/* {questionLevel && <LevelBadge>Level: {questionLevel}</LevelBadge>} */}
       </Header>
       <Content>
         <ImageContainer>
@@ -88,6 +95,7 @@ const ImageChooseSound = ({
                 key={index}
                 onClick={() => {
                   if (!hasChecked) {
+                    clickMound.play();
                     setSelected(option);
                     playOptionSound(option);
                     checkAnswer(option); // Gọi kiểm tra đáp án ngay sau khi chọn
@@ -119,13 +127,18 @@ const ImageChooseSound = ({
         </Instructions>
       )}
 
-      {hasChecked && (
-        <Feedback>
-          {userAnswer === answer
-            ? `✅ Đúng! Đáp án: ${answer}`
-            : `❌ Sai! Đáp án: ${answer}`}
-        </Feedback>
-      )}
+      {hasChecked &&
+        (selected !== null && selected !== "" ? (
+          <Feedback>
+            {selected === answer
+              ? `✅ Đúng! Đáp án: ${answer}`
+              : `❌ Sai! Đáp án: ${answer}`}
+          </Feedback>
+        ) : (
+          <Feedback>
+            {`❌ Bạn không có câu trả lời. Đáp án: ${answer}`}
+          </Feedback>
+        ))}
     </Card>
   );
 };
@@ -153,16 +166,6 @@ const QuestionText = styled.h3`
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
-`;
-
-const LevelBadge = styled.div`
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: linear-gradient(45deg, #6dd5ed, #2193b0);
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: bold;
 `;
 
 const Content = styled.div`

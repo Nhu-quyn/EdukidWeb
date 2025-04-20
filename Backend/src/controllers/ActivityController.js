@@ -48,7 +48,7 @@ const updateActivity = async (req, res) => {
   try {
     const data = req.body;
     const activityId = req.params.id;
-
+    console.log("controll", data);
     if (!activityId) {
       return res.status(200).json({
         status: "ERR",
@@ -90,7 +90,6 @@ const deleteActivity = async (req, res) => {
     });
   }
 };
-
 const getTestAndReview = async (req, res) => {
   try {
     // const activityId = req.params.id;
@@ -110,7 +109,6 @@ const getTestAndReview = async (req, res) => {
     });
   }
 };
-
 const getAllQuizByCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
@@ -213,6 +211,28 @@ const filterActivityReviewByTopic = async (req, res) => {
     });
   }
 };
+const getTestByUserNoDone = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const result = await ActivityService.getTestByUserNoDone(userId);
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+const getCountTestNotDone = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const result = await ActivityService.getCountTestNoDone(userId);
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   createCategory,
   createActivity,
@@ -225,4 +245,6 @@ module.exports = {
   getCategoryByName,
   getTestAndReview,
   filterActivityReviewByTopic,
+  getTestByUserNoDone,
+  getCountTestNotDone,
 };

@@ -6,8 +6,11 @@ import {
   StyledCard,
   QuestionWrapper,
   QuestionText,
+  LevelBadge,
+  levelDetails,
   IconWrapper,
 } from "../gameCss";
+import { Howl } from "howler";
 const { Text } = Typography;
 
 const Container = styled.div`
@@ -56,26 +59,6 @@ const IconSound = styled(SoundOutlined)`
   font-size: 4rem;
 `;
 
-const LevelBadge = styled.div`
-  display: inline-block;
-  // display: flex inline-block;
-  padding: 8px 16px;
-  border-radius: 20px;
-  // background: linear-gradient(45deg, #6dd5ed, #2193b0);
-  color: #444;
-  font-weight: bold;
-  font-size: 2rem;
-  // text-transform: uppercase;
-  margin-left: 10px; /* Giữ khoảng cách với chữ */
-  // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease-in-out;
-
-  &:hover {
-    transform: scale(1.1);
-    // box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  }
-`;
-
 const Instructions = styled.div`
   margin-top: 20px;
   background-color: #e9ecef;
@@ -107,8 +90,10 @@ const ListenChooseImage = ({
   onSelectAnswer,
   score,
   word,
+  isLast,
   options,
   answer,
+  onFinish,
   onNext,
   questionLevel,
 }) => {
@@ -131,80 +116,136 @@ const ListenChooseImage = ({
 
   //   onNext(); // Chuyển sang câu tiếp theo
   // };
+  const correctSound = new Howl({
+    src: ["/Sound/correct.wav"], // Âm thanh đúng
+  });
+
+  const incorrectSound = new Howl({
+    src: ["/Sound/incorrect.wav"], // Âm thanh sai
+  });
+
+  // const handleSelect = (selectedAnswer) => {
+  //   if (selected) return; // Nếu đã chọn thì không làm gì
+  //   const isCorrect = selectedAnswer === answer;
+  //   if (isCorrect) {
+  //     correctSound.play(); // Phát âm thanh đúng
+  //   } else {
+  //     incorrectSound.play(); // Phát âm thanh sai
+  //   }
+  //   onSelectAnswer(_id, selectedAnswer, isCorrect, score);
+  //   setSelected(selectedAnswer); // Lưu đáp án đã chọn
+  // };
   const handleSelect = (selectedAnswer) => {
+    if (selected) return;
     const isCorrect = selectedAnswer === answer; // So sánh với đáp án đúng
+    // const isCorrect = selectedAnswer === answer;
+    if (isCorrect) {
+      correctSound.play(); // Phát âm thanh đúng
+    } else {
+      incorrectSound.play(); // Phát âm thanh sai
+    }
     onSelectAnswer(_id, selectedAnswer, isCorrect, score); // Giả sử đúng được +10 điểm
     setFeedback(selectedAnswer === answer ? "🎉 Đúng!" : "❌ Sai!");
     if (selected) return;
+
     setSelected(selectedAnswer);
   };
 
+  const handleFinish = () => {
+    // if (!selected) {
+    //   onSelectAnswer(_id, selected, false, score);
+    // }
+    setTimeout(() => {
+      onFinish();
+    }, 50); // Tránh next quá nhanh trước khi Redux cập nhật
+  };
+  const handleNext = () => {
+    if (!selected) {
+      onSelectAnswer(_id, selected, false, score);
+    }
+    setTimeout(() => {
+      onNext();
+    }, 50); // Tránh next quá nhanh trước khi Redux cập nhật
+  };
   return (
-    <StyledCard>
-      <Container>
-        <QuestionWrapper>
-          <IconWrapper onClick={speak}>
-            <IconSound />
-          </IconWrapper>
-          <QuestionText>Nghe</QuestionText>
-        </QuestionWrapper>
+    <div>
+      <div style={{ marginTop: 20 }}>
+        <LevelBadge level={questionLevel}>
+          {levelDetails[questionLevel].label} - {score} điểm
+        </LevelBadge>
+      </div>
+      <StyledCard>
+        <Container>
+          <QuestionWrapper>
+            <IconWrapper onClick={speak}>
+              <IconSound />
+            </IconWrapper>
+            <QuestionText>Nghe</QuestionText>
+          </QuestionWrapper>
 
-        {/* Level badge */}
-        <LevelBadge>Level: {questionLevel}</LevelBadge>
+          {/* Level badge */}
+          {/* <LevelBadge>Level: {questionLevel}</LevelBadge> */}
 
-        <OptionsContainer>
-          {options.map((option, index) => (
-            <OptionWrapper
-              key={index}
-              onClick={() => handleSelect(option)}
-              selected={selected === option}
-              correct={option === answer}
-              showAnswer={selected !== null}
-            >
-              <Image
-                src={option}
-                alt={`Option ${index + 1}`}
-                width={280}
-                height={280}
-                preview={false}
-                style={{ borderRadius: "12px" }}
-              />
-              {selected === option && (
-                <Text
-                  style={{
-                    display: "block",
-                    fontSize: "1.4rem",
-                    fontWeight: "bold",
-                    color: option === answer ? "#155724" : "#721c24",
-                    marginTop: 10,
-                  }}
-                >
-                  {option === answer ? "🎉 Đúng!" : "❌ Sai!"}
-                </Text>
-              )}
-            </OptionWrapper>
-          ))}
-        </OptionsContainer>
+          <OptionsContainer>
+            {options.map((option, index) => (
+              <OptionWrapper
+                key={index}
+                onClick={() => handleSelect(option)}
+                selected={selected === option}
+                correct={option === answer}
+                showAnswer={selected !== null}
+              >
+                <Image
+                  src={option}
+                  alt={`Option ${index + 1}`}
+                  width={280}
+                  height={280}
+                  preview={false}
+                  style={{ borderRadius: "12px" }}
+                />
+                {selected === option && (
+                  <Text
+                    style={{
+                      display: "block",
+                      fontSize: "1.4rem",
+                      fontWeight: "bold",
+                      color: option === answer ? "#155724" : "#721c24",
+                      marginTop: 10,
+                    }}
+                  >
+                    {option === answer ? "🎉 Đúng!" : "❌ Sai!"}
+                  </Text>
+                )}
+              </OptionWrapper>
+            ))}
+          </OptionsContainer>
 
-        {/* Instructions with color boxes */}
-        <Instructions>
-          <InstructionItem>
-            <ColorBox style={{ backgroundColor: "#d4edda" }} />
-            <Text>Đáp án đúng</Text>
-          </InstructionItem>
-          <InstructionItem>
-            <ColorBox style={{ backgroundColor: "#f8d7da" }} />
-            <Text>Đáp án sai</Text>
-          </InstructionItem>
-        </Instructions>
+          {/* Instructions with color boxes */}
+          <Instructions>
+            <InstructionItem>
+              <ColorBox style={{ backgroundColor: "#d4edda" }} />
+              <Text>Đáp án đúng</Text>
+            </InstructionItem>
+            <InstructionItem>
+              <ColorBox style={{ backgroundColor: "#f8d7da" }} />
+              <Text>Đáp án sai</Text>
+            </InstructionItem>
+          </Instructions>
 
-        <ButtonContainer>
-          <IconWrapper onClick={onNext}>
-            <RightOutlined />
-          </IconWrapper>
-        </ButtonContainer>
-      </Container>
-    </StyledCard>
+          <ButtonContainer>
+            {!isLast ? (
+              <IconWrapper onClick={handleNext}>
+                <RightOutlined />
+              </IconWrapper>
+            ) : (
+              <IconWrapper onClick={handleFinish}>
+                <RightOutlined />
+              </IconWrapper>
+            )}
+          </ButtonContainer>
+        </Container>
+      </StyledCard>
+    </div>
   );
 };
 

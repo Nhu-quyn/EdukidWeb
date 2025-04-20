@@ -19,6 +19,7 @@ import {
   FaBell, // Import icon thông báo
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import * as ActivityService from "../../services/ActivityService";
 const { Text } = Typography;
 // background: linear-gradient(135deg, #ff69b4, #32cd32, #1e90ff);
 const HeaderContainer = styled.header`
@@ -247,10 +248,11 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn || false);
-  const username = useSelector((state) => state.user.username);
-
+  // const username = useSelector((state) => state.user?.user.username);
+  const user = useSelector((state) => state.user?.user);
+  const userId = user?._id;
   const dropdownRef = useRef(null);
-
+  const [countTest, setCountTest] = useState(0);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -263,6 +265,25 @@ const Header = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+    if (userId) {
+      fetchCountTest();
+    }
+  }, [userId]);
+  const fetchCountTest = async () => {
+    try {
+      const response = await ActivityService.testByUser(userId);
+      if (response.status === "OK") {
+        // console.error("Đã có lỗi khi lấy danh sách");
+        setCountTest(response.data.length);
+        console.log("Số lượng bài kiểm tra:", response.data);
+      }
+      console.log(response);
+      // setTestActivities(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu:", error);
+    }
+  };
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
@@ -314,6 +335,20 @@ const Header = () => {
                 <NavLink href="/test">
                   <FaClipboardCheck style={{ marginRight: "10px" }} />
                   Kiểm tra
+                  {countTest > 0 && (
+                    <span
+                      style={{
+                        marginLeft: "6px",
+                        backgroundColor: "red",
+                        color: "white",
+                        borderRadius: "12px",
+                        padding: "2px 8px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {countTest}
+                    </span>
+                  )}
                 </NavLink>
               </NavItem>
               <NavItem>

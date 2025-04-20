@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { Table, Button, Input, Select, Segmented, Tooltip } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Select, Segmented, Tooltip, Modal } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import styled from "styled-components";
 
+const { confirm } = Modal;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -48,7 +54,7 @@ const ReviewsAndTestTable = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isTestMode, setIsTestMode] = useState("Ôn tập");
+  const [isTestMode, setIsTestMode] = useState("Tất cả");
 
   const filteredReviews = reviews.filter((r) => {
     const isMatchingCategory =
@@ -63,7 +69,19 @@ const ReviewsAndTestTable = ({
 
     return isMatchingCategory && isMatchingSearch && isMatchingMode;
   });
-
+  const showDeleteConfirm = (record) => {
+    confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa bài tập"${record.activityId}" không?`,
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk() {
+        onDelete(record._id);
+      },
+    });
+  };
   const columns = [
     {
       title: "Mã hoạt động",
@@ -104,16 +122,29 @@ const ReviewsAndTestTable = ({
       dataIndex: "activityLevel",
       align: "center",
       key: "activityLevel",
+      render: (level) => {
+        const levelMapping = {
+          easy: "Dễ",
+          normal: "Trung bình",
+          hard: "Khó",
+        };
+        return levelMapping[level] || "Không xác định";
+      },
     },
     {
       title: "Danh mục",
       dataIndex: "categoryId",
       key: "categoryId",
       align: "center",
-      render: (category) =>
-        category?.categoryName === "test" ? "Kiểm tra" : "Ôn tập",
+      render: (category) => {
+        const mapping = {
+          test: "Kiểm tra",
+          review: "Ôn tập",
+          game: "Trò chơi",
+        };
+        return mapping[category?.categoryName] || "Không xác định";
+      },
     },
-
     {
       title: "Thao tác",
       key: "actions",
@@ -126,12 +157,15 @@ const ReviewsAndTestTable = ({
             onClick={() => onEdit(record)}
             // style={{ marginRight: 8 }}
           />
-          <Button
-            type="text"
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => onDelete(record._id)}
-          />
+          {record.activityName !== "Trò chơi" && (
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              danger
+              // onClick={() => onDelete(record._id)}
+              onClick={() => showDeleteConfirm(record)}
+            />
+          )}
         </>
         //    {/* <Tooltip title="Chỉnh sửa"> */}
         //    <Button

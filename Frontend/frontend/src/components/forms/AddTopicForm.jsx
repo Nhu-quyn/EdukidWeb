@@ -119,14 +119,22 @@ const AddTopicForm = ({ visible, onSubmit, onCancel, initialValues }) => {
           <StyledInput placeholder="Dán URL video vào đây" />
         </Form.Item>
 
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          style={{ marginRight: 10 }}
+        <Form.Item
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 20,
+          }}
         >
-          {initialValues ? "Cập nhật" : "Tạo"}
-        </Button>
-        <Button onClick={onCancel}>Hủy</Button>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            style={{ marginRight: 10 }}
+          >
+            {initialValues ? "Cập nhật" : "Thêm mới"}
+          </Button>
+          <Button onClick={onCancel}>Hủy</Button>
+        </Form.Item>
       </StyledForm>
     </Modal>
   );

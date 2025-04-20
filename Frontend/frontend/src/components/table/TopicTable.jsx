@@ -144,7 +144,7 @@ const TopicTable = ({ topics, onView, onEdit, onDelete, onAdd }) => {
         dataSource={filteredTopics}
         columns={columns}
         rowKey="_id"
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 8 }}
         bordered
         style={{ boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", borderRadius: 10 }}
       />

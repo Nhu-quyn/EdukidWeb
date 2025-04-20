@@ -77,5 +77,59 @@ const updateStatus = async (req, res) => {
     });
   }
 };
+const updateLearningGoal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // const {id} = req.params.id;
+    const data = req.body;
+    // console.log(req.body);
+    // Kiểm tra trường bắt buộc
+    if (!id) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "ID is required",
+      });
+    }
 
-module.exports = { createLearningGoal, getAllLearningGoal, updateStatus };
+    // Gọi service để tạo mục tiêu học tập
+    const result = await LearningGoalService.updateLearningGoal(id, data);
+    // console.log(result);
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+const deleteLearningGoal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // console.log(req.body);
+    // Kiểm tra trường bắt buộc
+    if (!id) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "ID is required",
+      });
+    }
+
+    // Gọi service để tạo mục tiêu học tập
+    const result = await LearningGoalService.deleteLearningGoal(id);
+    // console.log(result);
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  createLearningGoal,
+  getAllLearningGoal,
+  updateStatus,
+  deleteLearningGoal,
+  updateLearningGoal,
+};

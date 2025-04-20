@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Table,
   Button,
@@ -10,10 +10,17 @@ import {
   Popconfirm,
   message,
   Select,
+  Modal,
 } from "antd";
 
-import { EditOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import styled from "styled-components";
+const { confirm } = Modal;
 const { Text } = Typography;
 const { Search } = Input;
 const StyledButton = styled(Button)`
@@ -84,7 +91,28 @@ const VocabularyTable = ({
   //       console.error("Lỗi khi tải từ vựng:", error);
   //     }
   //   };
-
+  const filteredVocabularies = useMemo(() => {
+    return vocabularies.filter(
+      (vocabulary) =>
+        vocabulary.vocabulary
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        vocabulary.meaning.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [vocabularies, searchTerm]);
+  const showDeleteConfirm = (record) => {
+    confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa từ vựng"${record.vocabulary}" không?`,
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk() {
+        onDelete(record._id);
+      },
+    });
+  };
   const columns = [
     // {
     //   title: "ID",
@@ -127,6 +155,13 @@ const VocabularyTable = ({
       dataIndex: "topicId",
       key: "topicId",
       render: (topic) => topic?.topicName || "Không có",
+      // render: (topic) => topic.topicName,
+      filters: topics.map((topic) => ({
+        text: topic.topicName,
+        value: topic._id,
+      })),
+      onFilter: (value, record) => record.topicId._id === value,
+      render: (topic) => topic.topicName,
     },
     {
       title: "Thao tác",
@@ -142,7 +177,7 @@ const VocabularyTable = ({
             type="text"
             icon={<DeleteOutlined />}
             danger
-            onClick={() => onDelete(record._id)}
+            onClick={() => showDeleteConfirm(record)}
           />
         </Space>
       ),
@@ -152,7 +187,7 @@ const VocabularyTable = ({
   return (
     <div>
       <HeaderSection>
-        <Select
+        {/* <Select
           placeholder="Chọn chủ đề"
           style={{ width: 200 }}
           allowClear
@@ -164,21 +199,21 @@ const VocabularyTable = ({
               {topic.topicName}
             </Select.Option>
           ))}
-        </Select>
+        </Select> */}
         <StyledSearch
           placeholder="Tìm kiếm từ vựng..."
           onChange={(e) => setSearchTerm(e.target.value)}
           // style={{ marginBottom: 16, width: 300 }}
         />
         <StyledButton onClick={onAdd} icon={<PlusOutlined />}>
-          Thêm câu hỏi
+          Thêm từ vựng
         </StyledButton>
       </HeaderSection>
       <Table
-        dataSource={vocabularies}
+        dataSource={filteredVocabularies}
         columns={columns}
         rowKey="_id"
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 8 }}
         bordered
         style={{ boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", borderRadius: 10 }}
       />

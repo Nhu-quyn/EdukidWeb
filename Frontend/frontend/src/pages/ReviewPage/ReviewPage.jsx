@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, createRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import {
@@ -57,6 +57,7 @@ const ContentWrapper = styled.div`
   text-align: center;
   max-height: 80vh;
   overflow-y: auto;
+  font-family: "Comic Sans MS", "Chalkboard", sans-serif;
   @media (max-width: 1288px) {
     width: 100%;
     height: 100vh;
@@ -256,18 +257,39 @@ const QuestionNumber = styled.div`
   text-align: left;
   align-self: flex;
 `;
-
 // Tạo motion component từ FloatingButton để hỗ trợ drag
 const DraggableFloatingButton = motion(FloatingButton);
 // Component bảng đáp án
-const AnswerBoard = ({ answers, onSelectQuestion, onFinish }) => {
+const AnswerBoard = ({
+  answers,
+  onSelectQuestion,
+  onFinish,
+  topicId,
+  isTestPage,
+  questionRefs,
+}) => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-
+  const activity = useSelector((state) => state.activity?.activity);
+  const navigate = useNavigate();
   const handleSelect = (index) => {
     setSelectedQuestion(index);
     onSelectQuestion(index);
+
+    // Cuộn đến câu hỏi tương ứng
+    questionRefs.current[index]?.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   };
 
+  const handleOnFinishReview = () => {
+    console.log(isTestPage);
+    if (isTestPage) {
+      navigate("/test");
+    } else {
+      navigate(`/review/${topicId}`);
+    }
+  };
   return (
     <div>
       {/* Container hàng ngang cho các nút */}
@@ -295,22 +317,42 @@ const AnswerBoard = ({ answers, onSelectQuestion, onFinish }) => {
       </HorizontalAnswerBoardContainer>
 
       {/* Nút kết thúc bài làm */}
-      <div style={{ textAlign: "center" }}>
-        <EndButton
-          onClick={onFinish}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#ff9800",
-            border: "none",
-            borderRadius: "10px",
-            color: "white",
-            fontSize: "18px",
-            cursor: "pointer",
-          }}
-        >
-          Kết thúc bài làm
-        </EndButton>
-      </div>
+      {!activity.isReview && (
+        <div style={{ textAlign: "center" }}>
+          <EndButton
+            onClick={onFinish}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#ff9800",
+              border: "none",
+              borderRadius: "10px",
+              color: "white",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
+          >
+            Kết thúc bài làm
+          </EndButton>
+        </div>
+      )}
+      {activity.isReview && (
+        <div style={{ textAlign: "center" }}>
+          <EndButton
+            onClick={handleOnFinishReview}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#ff9800",
+              border: "none",
+              borderRadius: "10px",
+              color: "white",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
+          >
+            Kết thúc xem lại
+          </EndButton>
+        </div>
+      )}
     </div>
   );
 };
@@ -443,6 +485,7 @@ const ExerciseComponents = {
 const ReviewPage = () => {
   const [exercises, setExercises] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
+  const questionRefs = useRef([]); // Lưu danh sách ref cho từng câu hỏi
   const [loading, setLoading] = useState(true);
   const [finished, setFinished] = useState(false);
   const [showAnswerBoard, setShowAnswerBoard] = useState(false);
@@ -457,21 +500,27 @@ const ReviewPage = () => {
   const answerQuestions = useSelector(
     (state) => state.activity?.answer_questions || []
   );
+  // const [answerQuestions, setAnswerQuestions] = useState([]);
   const [testTimes, setTestTimes] = useState(0);
   const location = useLocation();
+  const [currentId, setCurrentId] = useState("");
   // Kiểm tra nếu là trang `/test/:activityId` thì lấy test, nếu là `/review/:topicId/:activityId` thì lấy review
   const isTestPage = location.pathname.includes("/test/");
   const isReviewPage = location.pathname.includes("/review/");
 
   // console.log("Current Path:", location.pathname);
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log("Activity updated:", activity);
-  }, [activity]); // Khi `activity` thay đổi, effect này sẽ chạy lại
+  useEffect(() => {}, [activity]); // Khi `activity` thay đổi, effect này sẽ chạy lại
 
   useEffect(() => {
-    console.log("User ID updated:", answerQuestions);
-  }, [answerQuestions]); // Khi `userId` thay đổi, effect này sẽ chạy lại
+    if (answerQuestions.length === exercises.length && exercises.length > 0) {
+      updateLearningProgress();
+    }
+  }, [answerQuestions, exercises]);
+  useEffect(() => {
+    questionRefs.current = exercises.map(() => createRef());
+  }, [exercises]);
+
   const nextExercises = () => {
     setStartIndex((prev) => (prev + 3 < exercises.length ? prev + 3 : prev));
   };
@@ -516,13 +565,13 @@ const ReviewPage = () => {
     isCorrect,
     score
   ) => {
-    console.log("Dữ liệu gửi đi:", {
-      questionId,
-      type,
-      selectedAnswer,
-      isCorrect,
-      score,
-    });
+    // console.log("Dữ liệu gửi đi:", {
+    //   questionId,
+    //   type,
+    //   selectedAnswer,
+    //   isCorrect,
+    //   score,
+    // });
     // if (!activity.isReview) {
     // Kiểm tra xem câu hỏi đã có trong danh sách answerQuestions chưa
     // const existingAnswer = answerQuestions.find(
@@ -535,6 +584,23 @@ const ReviewPage = () => {
     //   //chưa được viết
     // } else {
     // Nếu chưa có, thêm mới
+    // console.log(answerQuestions);
+    // setAnswerQuestions((prevAnswers) => {
+    //   const existingAnswerIndex = prevAnswers.findIndex(
+    //     (ans) => ans.questionId === questionId
+    //   );
+
+    //   if (existingAnswerIndex !== -1) {
+    //     // Nếu đã có, cập nhật câu trả lời
+    //     const updatedAnswers = [...prevAnswers];
+    //     updatedAnswers[existingAnswerIndex] = { questionId, selectedAnswer };
+    //     return updatedAnswers;
+    //   } else {
+    //     // Nếu chưa có, thêm mới
+    //     return [...prevAnswers, { questionId, selectedAnswer }];
+    //   }
+    // });
+    // console.log("tại đây", answerQuestions);
     dispatch(
       addAnswerWithLogin({
         questionId,
@@ -567,15 +633,11 @@ const ReviewPage = () => {
     setStartIndex(newStartIndex);
     setCurrentQuestionIndex(index);
   };
-  const updateLearningProgress = async (
-    activityId,
-    userId,
-    answerQuestions
-  ) => {
+  const updateLearningProgress = async () => {
+    console.log("Answer Questions dữ liệu gửi:", answerQuestions);
     if (!userId) return;
     try {
-      // console.log(answerQuestions);
-      const response = await UserService.updateLearningProgressGame(
+      const response = await UserService.updateLearningProgressActivity(
         activityId,
         userId,
         answerQuestions
@@ -603,11 +665,11 @@ const ReviewPage = () => {
         dispatch(setEndIsTrue());
         // console.log(activity.isEnd);
         // if (exercises.length === answerQuestions.length) {
-        setTimeout(async () => {
-          await updateLearningProgress(activityId, userId, answerQuestions);
-        }, 2000); // Chờ 2.5s trước khi gọi hàm
+        // setTimeout(async () => {
+        //   await updateLearningProgress();
+        // }, 2000); // Chờ 2.5s trước khi gọi hàm
 
-        message.success("Bài tập đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
+        // message.success("Bài tập đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
         // }
         setTimeout(() => {
           if (isReviewPage) {
@@ -622,10 +684,10 @@ const ReviewPage = () => {
   const endTest = async () => {
     dispatch(setEndIsTrue());
     setTimeout(async () => {
-      await updateLearningProgress(activityId, userId, answerQuestions);
+      await updateLearningProgress();
     }, 3000); // Chờ 2.5s trước khi gọi hàm
 
-    message.success("Bài tập đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
+    // message.success("Bài tập đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
     // }
     setTimeout(() => {
       navigate(`/end-test/${activityId}`);
@@ -648,11 +710,14 @@ const ReviewPage = () => {
       {!isMobile && (
         <AnswerBoard
           answers={exercises}
-          onSelectQuestion={handleSelectQuestion}
+          isTestPage={isTestPage}
+          topicId={topicId}
+          onSelectQuestion={setCurrentQuestionIndex}
+          questionRefs={questionRefs}
           onFinish={endExercise}
         />
       )}
-      {isTestPage && (
+      {isTestPage && !activity.isReview && (
         <TimerWrapper>
           {" "}
           <CountdownTimer testime={5} onEnd={endTest} />
@@ -681,13 +746,18 @@ const ReviewPage = () => {
                 )?.selectedAnswer; // Chỉ lấy giá trị `selectedAnswer`
 
                 return (
-                  <Card key={exercise._id || index}>
+                  <Card
+                    key={exercise._id || index}
+                    ref={questionRefs.current[index]}
+                  >
                     <QuestionNumber>Câu {questionNumber}:</QuestionNumber>
                     {ExerciseComponent && (
                       <ExerciseComponent
                         {...exercise}
                         onUserSelect={handleSelectAnswer}
                         isReview={activity.isReview}
+                        setCurrentId={setCurrentId}
+                        currentId={currentId}
                         activityId={activityId}
                         isEnd={activity.isEnd}
                         userAnswer={userAnswer} // Chỉ truyền `selectedAnswer`
@@ -704,7 +774,10 @@ const ReviewPage = () => {
                 const ExerciseComponent = ExerciseComponents[questionTypeId];
 
                 return (
-                  <Card key={exercise._id || index}>
+                  <Card
+                    key={exercise._id || index}
+                    ref={questionRefs.current[index]}
+                  >
                     <QuestionNumber>Câu {questionNumber}:</QuestionNumber>
                     {ExerciseComponent && (
                       <ExerciseComponent
@@ -783,10 +856,10 @@ const ReviewPage = () => {
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <AnswerBoard
               answers={exercises}
-              onSelectQuestion={(index) => {
-                handleSelectQuestion(index);
-                setShowAnswerBoard(false);
-              }}
+              isTestPage={isTestPage}
+              topicId={topicId}
+              onSelectQuestion={setCurrentQuestionIndex}
+              questionRefs={questionRefs}
               onFinish={endExercise}
             />
             {/* translation ch fix component */}
@@ -819,16 +892,17 @@ export const TimerWrapper = styled.div`
   position: absolute;
   background: #ff4d4f;
   color: white;
+  size: 6rem;
   font-weight: bold;
   top: 40px;
-  right: 20px;
+  right: 100px;
   // display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.8rem 1.5rem;
   border-radius: 10px;
   font-size: 3rem;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  // box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     font-size: 2rem;

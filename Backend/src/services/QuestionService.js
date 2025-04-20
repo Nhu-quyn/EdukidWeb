@@ -337,7 +337,8 @@ const deleteQuestion = async (questionId) => {
     }
 
     // Xóa tất cả các liên kết đến questionId trong ActivityQuestion
-    await Question.deleteMany({ questionId });
+    await ActivityQuestion.deleteMany({ questionId });
+    // await Question.deleteMany({ questionId });
 
     // Xóa câu hỏi
     await Question.findByIdAndDelete(questionId);

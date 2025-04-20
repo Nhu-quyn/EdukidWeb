@@ -7,6 +7,8 @@ router.post("/sign-up", userController.createUser);
 router.post("/sign-in", userController.loginUser);
 router.post("/google-sign-in", userController.loginWithGoogle);
 router.put("/update-user/:id", userController.updateUser);
+router.put("/update-avatar/:id", userController.updateAvatar);
+router.put("/update-password/:id", userController.updatePassword);
 router.delete("/delete-user/:id", authMiddleWare, userController.deleteUser);
 // router.get("/get-user/:id", authMiddleWare, userController.getUserById);
 router.get("/get-user/:id", userController.getUserById);

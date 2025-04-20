@@ -10,6 +10,8 @@ import {
   QuestionCircleOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { clearUser } from "../../store/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Menu, Layout } from "antd";
 import styled from "styled-components";
 import logo from "../../assets/logoEdukid.jpg"; // Thay đường dẫn logo phù hợp
@@ -27,9 +29,18 @@ const SidebarContainer = styled(Sider)`
   padding-top: 20px;
 `;
 
+// const Logo = styled.img`
+//   width: ${({ collapsed }) => (collapsed ? "50px" : "120px")};
+//   height: ${({ collapsed }) => (collapsed ? "50px" : "120px")};
+//   transition: all 0.3s;
+//   margin: 0 auto 20px;
+//   display: block;
+//   border-radius: 50%;
+//   object-fit: cover;
+// `;
 const Logo = styled.img`
-  width: ${({ collapsed }) => (collapsed ? "50px" : "120px")};
-  height: ${({ collapsed }) => (collapsed ? "50px" : "120px")};
+  width: ${(props) => (props.collapsed ? "40px" : "120px")};
+  height: ${(props) => (props.collapsed ? "40px" : "120px")};
   transition: all 0.3s;
   margin: 0 auto 20px;
   display: block;
@@ -91,7 +102,7 @@ const items = [
   {
     key: "review-and-test-management",
     icon: <FileTextOutlined />,
-    label: "Bài ôn tập & kiểm tra",
+    label: "Quản lý hoạt động",
   },
   // {
   //   key: "tests-management",
@@ -113,19 +124,21 @@ const items = [
 
 const NavComponent = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleCollapsed = () => setCollapsed(!collapsed);
   const handleMenuClick = (e) => {
     if (e.key === "logout") {
       console.log("Đăng xuất...");
+      dispatch(clearUser());
     } else {
       navigate(`/admin/${e.key}`);
     }
   };
 
   return (
-    <SidebarContainer collapsible collapsed={collapsed} width={280}>
+    <SidebarContainer collapsed={collapsed} width={280}>
       <Logo src={logo} alt="Logo" collapsed={collapsed} />
       <StyledMenu
         theme="light"
@@ -134,6 +147,8 @@ const NavComponent = () => {
         items={items}
         inlineCollapsed={collapsed}
         onClick={handleMenuClick}
+        // collapsed={collapsed}
+        // width={280}
       />
       <ToggleButton onClick={toggleCollapsed}>
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}

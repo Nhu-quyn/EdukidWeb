@@ -25,7 +25,7 @@ const activitySchema = new mongoose.Schema(
     activityLevel: {
       type: String,
       enum: ["easy", "normal", "hard"],
-      required: true,
+      // required: true,
     },
 
     testTime: {

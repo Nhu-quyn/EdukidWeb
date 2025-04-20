@@ -76,7 +76,6 @@ const createActivity = (newActivity) => {
           activityName,
           activityLevel,
           testTime,
-
           categoryId: checkCategory._id,
         });
 
@@ -118,8 +117,9 @@ const updateActivity = (activityId, updatedData) => {
   return new Promise(async (resolve, reject) => {
     // const { activityName, testTime, categoryId, questionIds } = updatedData;
     try {
-      // console.log("tới service");
-      const activity = await Activity.findById(activityId);
+      console.log(updatedData);
+      let activity;
+      activity = await Activity.findById(activityId);
       if (!activity) {
         return resolve({
           status: "ERR",
@@ -127,35 +127,55 @@ const updateActivity = (activityId, updatedData) => {
         });
       }
       if (updatedData.activityId) {
-        const checkActivity = await Activity.findOne({ activityId });
-        if (checkActivity._id !== activity._id) {
+        const checkActivity = await Activity.findOne({
+          activityId: updatedData.activityId,
+        });
+        // console.log(updatedData.activityId);
+        if (
+          checkActivity &&
+          checkActivity._id.toString() !== activity._id.toString()
+        ) {
           return resolve({
             status: "ERR",
             message: "ActivityId is available",
           });
         }
+        activity.activityId = updatedData.activityId;
       }
+
       // Cập nhật thông tin Activity
-      if (updatedData.activityName) activity.activityName = activityName;
-      if (updatedData.testTime) activity.testTime = testTime;
-      if (updatedData.categoryId) {
-        const checkCategory = await Category.findById(categoryId);
+      if (updatedData.activityName)
+        activity.activityName = updatedData.activityName;
+      if (updatedData.testTime) activity.testTime = updatedData.testTime;
+
+      if (updatedData.activityDescription)
+        activity.activityDescription = updatedData.activityDescription;
+      if (updatedData.activityLevel)
+        activity.activityLevel = updatedData.activityLevel;
+      if (updatedData.mode) {
+        const checkCategory = await Category.findOne({
+          categoryName: updatedData.mode,
+        });
+
         if (!checkCategory) {
           return resolve({
             status: "ERR",
             message: "Category not found",
           });
         }
-        activity.categoryId = updatedData.categoryId;
+
+        activity.categoryId = checkCategory._id;
       }
 
+      // console.log(activity);
       await activity.save();
 
       // Cập nhật danh sách câu hỏi (nếu có)
-      if (Array.isArray(updatedData.questionIds)) {
+      if (Array.isArray(updatedData.questions)) {
         try {
+          console.log("tới đay");
           await ActivityQuestion.deleteMany({ activityId }); // Xóa câu hỏi cũ
-          const newActivityQuestions = updatedData.questionIds.map(
+          const newActivityQuestions = updatedData.questions.map(
             (questionId) => ({
               activityId,
               questionId,
@@ -438,6 +458,7 @@ const getCategoryByName = async (categoryName) => {
 const getTestAndReview = async () => {
   try {
     const testAndReview = await Activity.find().populate("categoryId"); // Lấy tất cả danh mục
+    const filteredData = await Activity.find().populate("categoryId"); // Lấy tất cả danh mục
     // console.log("toi day ne");
     // Lọc bỏ các mục có categoryName là "game"
     // if (checkCategory.categoryName !== "game") {
@@ -475,14 +496,51 @@ const getTestAndReview = async () => {
     //     return { ...quiz.toObject(), activityLevel: quizDifficulty };
     //   })
     // );
-
-    const filteredData = testAndReview.filter(
-      (item) => item.categoryId?.categoryName !== "game"
-    );
+    // const activityQuestions = await ActivityQuestion.find().populate(
+    //   "questionId"
+    // );
+    // const filteredData = testAndReview.filter(
+    //   (item) => item.categoryId?.categoryName !== "game"
+    // );
     // console.log(filteredData);
+    // B1: Lọc activity không phải game
+    // const filteredData = testAndReview.filter(
+    //   (item) => item.categoryId?.categoryName !== "game"
+    // );
+
+    // B2: Lấy danh sách activityId từ filteredData
+    const filteredActivityIds = filteredData.map((item) => item._id.toString());
+    // console.log(filteredActivityIds);
+    // B3: Lấy toàn bộ ActivityQuestion có activityId nằm trong danh sách lọc
+    const activityQuestions = await ActivityQuestion.find({
+      activityId: { $in: filteredActivityIds },
+    });
+    // console.log(activityQuestions);
+
+    // B4: Gộp questionId vào từng activity trong filteredData
+    const activityMap = {}; // tạm để gom các question theo activity
+
+    activityQuestions.forEach((aq) => {
+      if (!aq.activityId) return; // bỏ qua nếu không có activityId
+
+      const key = aq.activityId.toString(); // nếu là ObjectId hoặc đã populate thì vẫn toString được
+
+      if (!activityMap[key]) {
+        activityMap[key] = [];
+      }
+
+      activityMap[key].push(aq.questionId); // questionId đã populate
+    });
+
+    // B5: Gán mảng questionId vào từng activity
+    const result = filteredData.map((activity) => ({
+      ...activity.toObject(), // <-- thêm cái này
+      questionId: activityMap[activity._id.toString()] || [],
+    }));
+    console.log(result);
     return {
       status: "OK",
-      data: filteredData,
+      data: result,
     };
   } catch (error) {
     return {
@@ -505,7 +563,7 @@ const filterActivityReviewByTopic = async (topicId, activities, userId) => {
     }
 
     // Lấy tiến trình học của user (nếu có)
-    const learningProgress = await LearningProgress.find({ userId });
+    // const learningProgress = await LearningProgress.find({ userId });
     // const highScoreQuestions = []; // Đảm bảo biến tồn tại
     // Duyệt qua từng activity
     const filteredData = await Promise.all(
@@ -525,28 +583,80 @@ const filterActivityReviewByTopic = async (topicId, activities, userId) => {
 
         // console.log(matchedQuestions);
         // Tìm tiến trình học tương ứng (nếu có)
-        const progress = learningProgress?.find(
-          (lp) => lp.activityId === activity._id.toString()
-        );
+        const progress = await LearningProgress.findOne({
+          activityId: activity._id,
+          userId,
+        });
 
         // Tính phần trăm hoàn thành của chủ đề
         const percentTopic =
           matchedQuestions.length > 0
-            ? (activityQuestions.length / matchedQuestions.length) * 100
+            ? (matchedQuestions.length / activityQuestions.length) * 100
             : 0;
 
         return {
           ...activity, // Giữ lại toàn bộ thông tin của activity
           percentComplete: progress?.percentComplete || 0, // Mặc định là 0 nếu không có progress
+          lastUpdate: progress?.lastUpdate || null,
           percentTopic,
         };
       })
     );
     console.log(filteredData);
     // **Lọc danh sách chỉ lấy những activity có percentTopic >= 80**
-    const result = filteredData.filter((item) => item.percentTopic >= 80);
+    const result = filteredData.filter((item) => item.percentTopic >= 70);
     // console.log(result);
     return { status: "OK", data: result };
+  } catch (error) {
+    return { status: "ERR", message: error.message };
+  }
+};
+const getTestByUserNoDone = async (userId) => {
+  try {
+    const categoryName = "test";
+    const categoryObj = await getCategoryByName(categoryName);
+    if (categoryObj.status === "ERR") {
+      return { status: "ERR", message: categoryObj.message };
+    }
+    const categoryId = categoryObj.data._id; // Lấy ID của danh mục "test"
+    const activities = await Activity.find({ categoryId });
+    if (!activities || activities.length === 0) {
+      return {
+        status: "ERR",
+        message: "No activities found for this category",
+      };
+    }
+    const learningProgress = await LearningProgress.find({ userId }); // co chua activityId
+    //loai bo activity co trong learningProgress
+    const filteredActivities = activities.filter(
+      (activity) =>
+        !learningProgress.some(
+          (progress) =>
+            progress.activityId?.toString() === activity._id?.toString()
+        )
+    );
+
+    // const activityIds = learningProgress.map((progress) => progress.activityId);
+    // const activities = await Activity.find({ _id: { $in: activityIds } });
+    return { status: "OK", data: filteredActivities };
+  } catch (error) {
+    return { status: "ERR", message: error.message };
+  }
+};
+const getCountTestNotDone = async (userId) => {
+  try {
+    // Gọi hàm getTestByUser để lấy ra các bài test chưa làm
+    const result = await getTestByUser(userId);
+
+    if (result.status === "ERR") {
+      return { status: "ERR", message: result.message };
+    }
+
+    // Lấy danh sách bài test chưa làm
+    const filteredActivities = result.data;
+
+    // Trả về số lượng bài test chưa làm
+    return { status: "OK", data: filteredActivities.length };
   } catch (error) {
     return { status: "ERR", message: error.message };
   }
@@ -564,4 +674,6 @@ module.exports = {
   getCategoryByName,
   getTestAndReview,
   filterActivityReviewByTopic,
+  getTestByUserNoDone,
+  getCountTestNotDone,
 };

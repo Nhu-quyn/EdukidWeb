@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { SoundOutlined } from "@ant-design/icons";
-
+import { LevelBadge, getLevelText, Question } from "../activityCss";
 const ListenAndTranslate = ({
   _id,
   questionContent,
@@ -86,21 +86,27 @@ const ListenAndTranslate = ({
 
   return (
     <Card>
-      <Header>
-        <QuestionText>{questionContent}</QuestionText>
-        {questionLevel && <LevelBadge>Level: {questionLevel}</LevelBadge>}
-      </Header>
+      <LevelBadge level={getLevelText(questionLevel)}>
+        {getLevelText(questionLevel)} - {score} điểm
+      </LevelBadge>
+      <QuestionText>
+        {questionContent} <SoundOutlined onClick={playAudio} />
+        {/* <ListenButton onClick={playAudio} /> */}
+        {/* {questionLevel && <LevelBadge>Level: {questionLevel}</LevelBadge>} */}
+      </QuestionText>
       <Content>
-        <ListenButton onClick={playAudio}>
-          <SoundIcon />
-          Nghe
-        </ListenButton>
+        {/* <SoundIcon />
+        Nghe */}
+        {/* </ListenButton> */}
       </Content>
       {!isReview ? (
         <InputField
           type="text"
           placeholder="Nhập bản dịch..."
           value={inputValue}
+          style={{ opacity: isReview ? 0.6 : 1 }} // Để dễ phân biệt khi review
+          disabled={isReview}
+          // readOnly={isReview} // Giữ khung nhưng không cho nhập
           onChange={(e) => handleInputChange(e)}
         />
       ) : (
@@ -131,25 +137,16 @@ const Card = styled.div`
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 20px;
+  flex-direction: row; /* default, có thể bỏ */
+  justify-content: space-between;
+  margin-bottom: 0px;
 `;
 
 const QuestionText = styled.h3`
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
-`;
-
-const LevelBadge = styled.div`
-  display: inline-block;
-  padding: 5px 12px;
-  margin-top: 8px;
-  border-radius: 20px;
-  background: linear-gradient(45deg, #6dd5ed, #2193b0);
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: bold;
 `;
 
 const Content = styled.div`
@@ -160,10 +157,11 @@ const Content = styled.div`
   margin-bottom: 16px;
 `;
 
-const ListenButton = styled.button`
-  background: #ff8c00;
-  color: #fff;
+const ListenButton = styled(SoundOutlined)`
+  // background: #ff8c00;
+  color: #ff8c00;
   padding: 10px 14px;
+  font-size: 2rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -172,13 +170,13 @@ const ListenButton = styled.button`
   gap: 8px;
   transition: background 0.3s;
   &:hover {
-    background: #ffa726;
+    background: rgb(237, 234, 229);
   }
 `;
 
-const SoundIcon = styled(SoundOutlined)`
-  font-size: 1.5rem;
-`;
+// const SoundIcon = styled(SoundOutlined)`
+//   font-size: 1.5rem;
+// `;
 
 const InputField = styled.input`
   width: 100%;
