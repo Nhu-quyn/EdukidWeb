@@ -21,6 +21,7 @@ export const LevelBadge = styled.div`
   // position: absolute;
   top: 10px;
   left: 10px;
+  text-align: center;
 
   color: #000000;
   font-size: 2rem;

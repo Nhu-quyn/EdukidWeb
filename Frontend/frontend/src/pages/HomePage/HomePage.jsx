@@ -62,7 +62,7 @@ const HomePage = () => {
       if (audio) {
         // Nhẹ nhàng khởi động nhạc nền
         audio.muted = false;
-        audio.volume = 0.25; // 25-30% volume là đủ nghe mà không lấn tiếng
+        audio.volume = 0.1; // 25-30% volume là đủ nghe mà không lấn tiếng
         audio
           .play()
           .then(() => {

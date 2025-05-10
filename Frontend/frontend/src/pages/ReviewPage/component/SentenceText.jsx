@@ -17,14 +17,39 @@ const SentenceText = ({
   const [selectedWords, setSelectedWords] = useState([]);
   const [hasChecked, setHasChecked] = useState(false);
   const words = answer.split(" ");
+  // const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+
   const [feedback, setFeedback] = useState("");
   const [selectedIndexes, setSelectedIndexes] = useState([]);
 
   const [isCorrect, setIsCorrect] = useState(false);
-  const addWord = (word, index) => {
-    if (!isReview && !selectedIndexes.includes(index)) {
-      setSelectedWords([...selectedWords, word]);
-      setSelectedIndexes([...selectedIndexes, index]);
+  const shuffleArray = (array) => {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  };
+
+  const shuffledWords = shuffleArray(words);
+
+  // const addWord = (word, index) => {
+  //   if (!isReview && !selectedIndexes.includes(index)) {
+  //     setSelectedWords([...selectedWords, word]);
+  //     setSelectedIndexes([...selectedIndexes, index]);
+  //   }
+  // };
+  const addWord = (word) => {
+    // Kiểm tra nếu word không rỗng và không phải là null/undefined
+    if (!word || word.trim() === "") {
+      console.error("Word is invalid or empty.");
+      return;
+    }
+
+    // Kiểm tra xem từ đã được chọn chưa
+    if (!selectedWords.includes(word)) {
+      setSelectedWords((prevWords) => [...prevWords, word]);
     }
   };
 
@@ -53,8 +78,8 @@ const SentenceText = ({
   //   }
   // };
 
-  const checkAnswer = (customAnswer = null) => {
-    const finalAnswer = customAnswer || selectedWords.join(" ");
+  const checkAnswer = (userAnswer = null) => {
+    const finalAnswer = userAnswer || selectedWords.join(" ");
     console.log(finalAnswer);
     if (finalAnswer.trim().toLowerCase() === answer.trim().toLowerCase()) {
       setFeedback("✅ Đúng!");
@@ -96,7 +121,7 @@ const SentenceText = ({
         ))}
       </WordsContainer> */}
       <WordsContainer>
-        {words.map((word, index) => (
+        {shuffledWords.map((word, index) => (
           <WordButton
             key={index}
             onClick={() => addWord(word, index)}
@@ -117,7 +142,7 @@ const SentenceText = ({
           </SelectedWord>
         ))}
       </Sentence>
-
+      {/* {userAnswer} */}
       {!isReview && (
         <ButtonRow>
           {!hasChecked && (

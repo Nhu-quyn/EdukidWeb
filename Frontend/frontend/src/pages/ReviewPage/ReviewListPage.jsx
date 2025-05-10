@@ -15,7 +15,8 @@ import {
 } from "../../store/activitySlice";
 import { useParams } from "react-router-dom";
 import * as ActivityService from "../../services/ActivityService";
-// import
+import * as TopicService from "../../services/TopicService";
+// import/
 
 const difficultyColors = {
   easy: "green",
@@ -33,6 +34,7 @@ const ReviewList = () => {
   const { topicId } = useParams();
   const [exercises, setExercises] = useState([]);
   const user = useSelector((state) => state.user?.user);
+  const [topic, setTopic] = useState(null);
   const userId = user?._id;
   const dispatch = useDispatch();
   const fetchActivities = async () => {
@@ -52,8 +54,27 @@ const ReviewList = () => {
       message.error(e);
     }
   };
+  const fetchTopic = async () => {
+    try {
+      const response = await TopicService.getTopic(topicId);
+      console.log("tới đây");
+      if (response.status === "OK") {
+        // setExercises(response.data);
+        setTopic(response.data);
+      }
+      // else {
+      //   message.error("Đã có lỗi khi lấy danh bài tập");
+      // }
+
+      console.log(response.data);
+    } catch (e) {
+      message.error(e);
+    }
+  };
+
   useEffect(() => {
     fetchActivities();
+    fetchTopic();
   }, []);
 
   const handleQuiz = (id) => {
@@ -69,50 +90,60 @@ const ReviewList = () => {
           <ArrowLeftOutlined />
           <span>Trở về</span>
         </BackButton> */}
-        <Title>Danh sách bài tập ôn tập - Chủ đề: Color</Title>
-        <List
-          grid={{
-            gutter: 24,
-            xs: 1,
-            sm: 2,
-            lg: 3,
-          }}
-          dataSource={exercises}
-          renderItem={(exercise) => (
-            <List.Item>
-              <StyledCard onClick={() => handleQuiz(exercise._id)}>
-                <ExerciseTitle>{exercise.activityName}</ExerciseTitle>
-                <Tooltip title={exercise.activityDescription}>
-                  <Description>
-                    {exercise.activityDescription
-                      ? exercise.activityDescription.length > 30
-                        ? `${exercise.activityDescription.substring(0, 30)}...`
-                        : exercise.activityDescription
-                      : "Không có mô tả"}
-                  </Description>
-                </Tooltip>
-                <Tag color={difficultyColors[exercise.activityLevel]}>
-                  {levelMapping[exercise.activityLevel] ||
-                    exercise.activityLevel}
-                </Tag>
+        <Title>
+          Danh sách bài tập ôn tập - Chủ đề:
+          {topic ? topic.topicName : "Đang tải..."}
+        </Title>
+        {exercises.length === 0 ? (
+          <NoExercise>Không có bài tập nào.</NoExercise>
+        ) : (
+          <List
+            grid={{
+              gutter: 24,
+              xs: 1,
+              sm: 2,
+              lg: 3,
+            }}
+            dataSource={exercises}
+            renderItem={(exercise) => (
+              <List.Item>
+                <StyledCard onClick={() => handleQuiz(exercise._id)}>
+                  <ExerciseTitle>{exercise.activityName}</ExerciseTitle>
+                  <Tooltip title={exercise.activityDescription}>
+                    <Description>
+                      {exercise.activityDescription
+                        ? exercise.activityDescription.length > 30
+                          ? `${exercise.activityDescription.substring(
+                              0,
+                              30
+                            )}...`
+                          : exercise.activityDescription
+                        : "Không có mô tả"}
+                    </Description>
+                  </Tooltip>
+                  <Tag color={difficultyColors[exercise.activityLevel]}>
+                    {levelMapping[exercise.activityLevel] ||
+                      exercise.activityLevel}
+                  </Tag>
 
-                {/* Hiển thị phần trăm hoàn thành nếu có */}
-                {exercise.percentComplete !== undefined && (
-                  <Progress
-                    percent={parseFloat(exercise.percentComplete.toFixed(2))}
-                    size="small"
-                  />
-                )}
-                {exercise.lastUpdate !== null && (
-                  <LastUpdateText>
-                    Ngày cập nhật:{" "}
-                    {dayjs(exercise.lastUpdate).format("DD/MM/YYYY")}
-                  </LastUpdateText>
-                )}
-              </StyledCard>
-            </List.Item>
-          )}
-        />
+                  {/* Hiển thị phần trăm hoàn thành nếu có */}
+                  {exercise.percentComplete !== undefined && (
+                    <Progress
+                      percent={parseFloat(exercise.percentComplete.toFixed(2))}
+                      size="small"
+                    />
+                  )}
+                  {exercise.lastUpdate !== null && (
+                    <LastUpdateText>
+                      Ngày cập nhật:{" "}
+                      {dayjs(exercise.lastUpdate).format("DD/MM/YYYY")}
+                    </LastUpdateText>
+                  )}
+                </StyledCard>
+              </List.Item>
+            )}
+          />
+        )}
       </MainContent>
       <Footer />
     </Container>
@@ -129,6 +160,13 @@ const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+`;
+const NoExercise = styled.div`
+  font-size: 1.5rem;
+  color: #888;
+  text-align: center;
+  margin-top: 40px;
+  font-family: "Comic Sans MS", cursive;
 `;
 
 const MainContent = styled.main`

@@ -50,14 +50,25 @@ const ListenAndTranslate = ({
       checkAnswer(userAnswer);
     }
   }, [userAnswer, isReview]);
+  // const playAudio = () => {
+  //   console.log(word);
+  //   const utterance = new SpeechSynthesisUtterance(word);
+  //   const voice = speechSynthesis
+  //     .getVoices()
+  //     .find((v) => v.name === "Google UK English Female");
+  //   if (voice) utterance.voice = voice;
+  //   window.speechSynthesis.speak(utterance);
+  //   // const utterance = new SpeechSynthesisUtterance(word);
+  //   // window.speechSynthesis.speak(utterance);
+  // };
   const playAudio = () => {
     const utterance = new SpeechSynthesisUtterance(word);
-    const voice = speechSynthesis
-      .getVoices()
-      .find((v) => v.name === "Google UK English Female");
-    if (voice) utterance.voice = voice;
-    speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
   };
+
+  // const speak = () => {
+
+  // };
 
   const checkTranslation = (value) => {
     if (value.trim().toLowerCase() === answer.toLowerCase()) {
@@ -90,7 +101,14 @@ const ListenAndTranslate = ({
         {getLevelText(questionLevel)} - {score} điểm
       </LevelBadge>
       <QuestionText>
-        {questionContent} <SoundOutlined onClick={playAudio} />
+        {questionContent} {/* <button }> */}
+        <SoundOutlined
+          style={{ cursor: "pointer", fontSize: "20px" }}
+          onClick={() => {
+            window.speechSynthesis.resume();
+            playAudio();
+          }}
+        />
         {/* <ListenButton onClick={playAudio} /> */}
         {/* {questionLevel && <LevelBadge>Level: {questionLevel}</LevelBadge>} */}
       </QuestionText>

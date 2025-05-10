@@ -92,7 +92,7 @@ const VocabularyTopic = () => {
       </MainContent>
 
       {/* Modal hiển thị chi tiết từ vựng */}
-      <Modal
+      {/* <Modal
         open={!!selectedWord}
         onCancel={() => setSelectedWord(null)}
         footer={null}
@@ -117,7 +117,47 @@ const VocabularyTopic = () => {
             </Button>
           </div>
         )}
+      </Modal> */}
+      <Modal
+        open={!!selectedWord}
+        onCancel={() => setSelectedWord(null)}
+        footer={null}
+        centered
+        width={600}
+      >
+        {selectedWord && (
+          <div style={{ textAlign: "center" }}>
+            <Image
+              src={selectedWord.vocabularyImage}
+              alt={selectedWord.vocabulary}
+              style={{
+                maxWidth: "200px",
+                marginBottom: "15px",
+                borderRadius: "8px",
+              }}
+              preview={false}
+            />
+            <Typography.Title level={3}>
+              {selectedWord.vocabulary}
+            </Typography.Title>
+            <Typography.Text italic>
+              {selectedWord.vocabularyIpa}
+            </Typography.Text>
+            <div>{selectedWord.meaning}</div>
+            <div>
+              <strong>Từ loại:</strong> {selectedWord.partOfSpeech}
+            </div>
+            <Button
+              type="primary"
+              onClick={() => speak(selectedWord.vocabulary)}
+              style={{ marginTop: "15px" }}
+            >
+              Phát âm 🔊
+            </Button>
+          </div>
+        )}
       </Modal>
+
       <Footer />
     </Container>
   );

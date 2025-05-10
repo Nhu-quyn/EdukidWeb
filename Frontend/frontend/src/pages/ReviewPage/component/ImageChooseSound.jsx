@@ -54,14 +54,16 @@ const ImageChooseSound = ({
 
   // Đọc âm thanh của tùy chọn
   const playOptionSound = (option) => {
+    // const utterance = new SpeechSynthesisUtterance(option);
+    // const voice = speechSynthesis
+    //   .getVoices()
+    //   .find((v) => v.name === "Google UK English Female");
+    // if (voice) {
+    //   utterance.voice = voice;
+    // }
+    // speechSynthesis.speak(utterance);
     const utterance = new SpeechSynthesisUtterance(option);
-    const voice = speechSynthesis
-      .getVoices()
-      .find((v) => v.name === "Google UK English Female");
-    if (voice) {
-      utterance.voice = voice;
-    }
-    speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
   };
 
   const getOptionStyle = (option) => {
@@ -95,10 +97,12 @@ const ImageChooseSound = ({
                 key={index}
                 onClick={() => {
                   if (!hasChecked) {
-                    clickMound.play();
-                    setSelected(option);
+                    // clickMound.play();
                     playOptionSound(option);
+                    setSelected(option);
                     checkAnswer(option); // Gọi kiểm tra đáp án ngay sau khi chọn
+                  } else {
+                    playOptionSound(option);
                   }
                 }}
                 optionStyle={styleType}

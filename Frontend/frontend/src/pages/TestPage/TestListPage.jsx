@@ -186,7 +186,8 @@ const TestListPage = () => {
     return (
       <Wrapper>
         <MainContainer>
-          <p>Hiện tại không có bài kiểm tra nào</p>
+          <p style={{ fontSize: "2rem" }}>Hiện tại không có bài kiểm tra nào</p>
+
           <Button onClick={() => navigate("/")}>Quay về</Button>
         </MainContainer>
       </Wrapper>

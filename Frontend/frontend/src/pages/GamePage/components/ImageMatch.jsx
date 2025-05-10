@@ -283,7 +283,7 @@ const ImageMatch = ({
                     marginTop: 10,
                   }}
                 >
-                  {option === answer ? (
+                  {/* {option === answer ? (
                     <>
                       <CheckCircleOutlined style={{ marginRight: 5 }} /> Đúng!
                     </>
@@ -291,7 +291,8 @@ const ImageMatch = ({
                     <>
                       <CloseCircleOutlined style={{ marginRight: 5 }} /> Sai!
                     </>
-                  )}
+                  )} */}
+                  {option === answer ? "🎉 Đúng!" : "❌ Sai!"}
                 </Text>
               )}
             </OptionWrapper>

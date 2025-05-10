@@ -231,7 +231,7 @@ const GamePage = () => {
       cancelText: "Không",
       onOk: async () => {
         await updateLearningProgress(userId, answer_questions);
-        message.success("Trò chơi đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
+        // message.success("Trò chơi đã kết thúc! Cảm ơn bạn đã tham gia 🎉", 2);
         setTimeout(() => {
           navigate("/end-game");
         }, 2000);

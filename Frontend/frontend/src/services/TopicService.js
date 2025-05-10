@@ -20,6 +20,15 @@ export const deleteTopic = async (id) => {
     throw error;
   }
 };
+export const getTopic = async (id) => {
+  try {
+    const response = await axios.get(`${api_topic}/get-topic/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
+};
 export const updateTopic = async (id, data) => {
   try {
     const response = await axios.put(`${api_topic}/update-topic/${id}`, data);

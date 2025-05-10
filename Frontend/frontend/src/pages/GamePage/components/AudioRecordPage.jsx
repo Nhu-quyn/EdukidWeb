@@ -7,6 +7,7 @@ import {
   SoundOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
+import { Howl } from "howler";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -95,6 +96,13 @@ const AudioRecordPage = ({
   //   speechSynthesis.speak(utterance);
   //   setHasSpoken(true);
   // };
+  const correctSound = new Howl({
+    src: ["/Sound/correct.wav"], // Âm thanh đúng
+  });
+
+  const incorrectSound = new Howl({
+    src: ["/Sound/incorrect.wav"], // Âm thanh sai
+  });
   const handleSpeakWord = () => {
     const utterance = new SpeechSynthesisUtterance(answer);
     const voices = speechSynthesis.getVoices();
@@ -135,6 +143,11 @@ const AudioRecordPage = ({
 
     if (cleanedTranscript === cleanedAnswer) {
       // console.log(transcript);
+      correctSound.play();
+      setAttempts((prev) => {
+        const newAttempts = prev + 1;
+        return newAttempts;
+      });
       message.success("🎉 Đúng rồi!");
       setIsCorrect(true);
       onSelectAnswer(_id, true, true, score); // Lưu kết quả đúng (+10 điểm)
@@ -144,6 +157,7 @@ const AudioRecordPage = ({
         const newAttempts = prev + 1;
         return newAttempts;
       });
+      incorrectSound.play();
       if (attempts + 1 >= 5) {
         onSelectAnswer(_id, false, false, score); // Lưu kết quả đúng (+10 điểm)
         message.error("Bạn hãy thử lại sau nhé!");
@@ -155,7 +169,8 @@ const AudioRecordPage = ({
   const handleStartRecording = () => {
     if (attempts >= 5 || isCorrect) return; // Không cho ghi âm nếu đã đúng hoặc hết lượt thử
     resetTranscript();
-    SpeechRecognition.startListening();
+    // SpeechRecognition.startListening();
+    SpeechRecognition.startListening({ language: "en-US" });
   };
 
   const handleStopRecording = () => {

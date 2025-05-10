@@ -114,11 +114,29 @@ const getAllTopic = async () => {
   }
 };
 
+const getTopic = async (topicId) => {
+  try {
+    const checkTopic = await Topic.findById(topicId);
+    if (!checkTopic) {
+      return {
+        status: "ERROR",
+        message: "Topic undefined",
+      };
+    }
+    const topic = await Topic.findById(topicId);
+    return {
+      status: "OK",
+      message: "Successful",
+      data: topic,
+    };
+  } catch (e) {}
+};
 module.exports = {
   createTopic,
   updateTopic,
   deleteTopic,
   getAllTopic,
+  getTopic,
 };
 
 //delete update chưa test

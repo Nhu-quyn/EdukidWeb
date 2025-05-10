@@ -233,12 +233,20 @@ const getPendingRemindersSchedule = async () => {
         },
       },
       { $unwind: "$learningGoal" },
+      // {
+      //   $match: {
+      //     "learningGoal.status": "active", // Điều kiện cho learningGoalId
+      //     "learningGoal.startDate": { $lt: currentTime },
+      //   },
+      // },
       {
         $match: {
-          "learningGoal.status": "active", // Điều kiện cho learningGoalId
+          "learningGoal.status": { $in: ["active", "completed"] }, // Điều kiện cho learningGoalId: "active" hoặc "completed"
+          // "learningGoal.startDate": { $lt: currentTime },
           "learningGoal.startDate": { $lte: currentTime },
         },
       },
+
       {
         $lookup: {
           from: "users", // Tên collection của User
@@ -391,11 +399,12 @@ const sendToEmail = async () => {
       console.log("🔕 Không có Reminder nào đang chờ xử lý.");
       return;
     }
+    console.log(pendingReminders);
 
-    const currentTime = new Date(); // Thời gian hiện tại
-    const currentHour = currentTime.getHours();
+    const currentTime = dayjs().tz("Asia/Ho_Chi_Minh"); // Thời gian hiện tại
+    const currentHour = currentTime.hour();
     // console.log("currentHour", currentHour);
-    const reminderHours = [8, 10, 22]; // Giờ gửi nhắc nhở targetWords
+    const reminderHours = [10, 12, 23]; // Giờ gửi nhắc nhở targetWords
     console.log("pendingReminders", pendingReminders);
     for (const reminder of pendingReminders) {
       if (!reminder.learningGoal || !reminder.user) {
@@ -426,7 +435,7 @@ const sendToEmail = async () => {
       // console.log("sentCount", sentCount);
       // console.log("targetWords", targetWords);
       // Xử lý nhắc nhở từ vựng nếu targetWords tồn tại và lớn hơn 0
-      if (targetWords && targetWords > 0 && isSameHourSlot) {
+      if (targetWords && targetWords > 0 && isSameHourSlot && sentCount < 3) {
         // Gửi 3 lần/ngày nếu chưa hoàn thành
         // if (
         //   // !completed &&
@@ -484,6 +493,7 @@ Chúng tớ tin bạn làm được! 💪🔥
           // Tăng số lần đã gửi lên 1
           await Reminder.findByIdAndUpdate(reminder._id, {
             $inc: { sentCount: sentCount },
+            lastSentAt: currentTime.toISOString(), // Lưu lại thời gian gửi
           });
 
           const emailOptions = {
@@ -888,8 +898,13 @@ module.exports = {
   checkTargetWords,
   sendToEmail,
 };
-cron.schedule("*/2 * * * *", async () => {
-  console.log("🔄 Kiểm tra tiến độ học tập mỗi 2 phút...");
+// cron.schedule("*/2 * * * *", async () => {
+//   console.log("🔄 Kiểm tra tiến độ học tập mỗi 2 phút...");
+//   await checkTargetWords();
+// });
+
+cron.schedule("* * * * *", async () => {
+  console.log("🔄 Kiểm tra tiến độ học tập mỗi 1 phút...");
   await checkTargetWords();
 });
 

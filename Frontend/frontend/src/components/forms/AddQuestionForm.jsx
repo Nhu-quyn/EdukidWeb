@@ -76,6 +76,7 @@ const AddQuestionForm = ({
         setUseVocabulary(true);
       }
 
+      handleTopicChange(initialValues.topicId?._id);
       const options = initialValues.options || [];
 
       // Hàm kiểm tra chuỗi là ảnh
@@ -295,6 +296,7 @@ const AddQuestionForm = ({
           <Form.Item
             name="vocabularyId"
             label="Từ vựng"
+            optionLabelProp="label" // Đảm bảo hiển thị đúng label (tên từ vựng)
             rules={[{ required: true }]}
           >
             <Select showSearch placeholder="Chọn từ vựng">

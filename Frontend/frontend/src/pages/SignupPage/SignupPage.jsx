@@ -249,7 +249,13 @@ const RegisterPage = () => {
             <Form.Item
               name="password"
               label="Mật khẩu"
-              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+              rules={[
+                { required: true, message: "Vui lòng nhập mật khẩu!" },
+                {
+                  min: 8,
+                  message: "Mật khẩu phải có ít nhất 8 ký tự!",
+                },
+              ]}
             >
               <Input.Password
                 prefix={<LockOutlined style={{ color: "#ff6699" }} />}
@@ -262,7 +268,11 @@ const RegisterPage = () => {
               label="Xác nhận mật khẩu"
               dependencies={["password"]}
               rules={[
-                { required: true, message: "Vui lòng xác nhận mật khẩu!" },
+                { required: true, message: "Vui lòng nhập mật khẩu!" },
+                {
+                  min: 8,
+                  message: "Mật khẩu phải có ít nhất 8 ký tự!",
+                },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {

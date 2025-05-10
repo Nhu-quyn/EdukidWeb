@@ -50,6 +50,7 @@ const MainContainer = styled.div`
   // }
   max-width: 1000px;
   margin: 40px auto;
+  flex: 1;
   padding: 20px;
   background: #f9f7fe;
   border-radius: 16px;
@@ -361,10 +362,18 @@ const StudySchedule = () => {
               ) : ( */}
               <>
                 <Text strong>📅 Chọn ngày bắt đầu:</Text>
-                <DatePicker
+                {/* <DatePicker
                   value={date}
                   onChange={setDate}
                   style={{ width: "100%", marginBottom: 10 }}
+                /> */}
+                <DatePicker
+                  value={date}
+                  onChange={(value) => setDate(value)}
+                  style={{ width: "100%", marginBottom: 10 }}
+                  disabledDate={(current) =>
+                    current && current.isBefore(dayjs(), "day")
+                  } // Không cho chọn ngày quá khứ
                 />
               </>
               {/* )} */}

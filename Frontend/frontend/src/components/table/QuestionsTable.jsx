@@ -83,7 +83,7 @@ const QuestionsTable = ({
       okType: "danger",
       cancelText: "Hủy",
       onOk() {
-        onDelete(record);
+        onDelete(record._id);
       },
     });
   };

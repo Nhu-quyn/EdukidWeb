@@ -180,19 +180,19 @@ const createQuestion = (newQuestion) => {
           message: "question available",
         });
       }
-      // Check if the question already exists (same questionTypeId and questionContent)
-      const existingQuestion = await Question.findOne({
-        questionTypeId,
-        questionContent,
-      });
-      console.log(existingQuestion);
+      // // Check if the question already exists (same questionTypeId and questionContent)
+      // const existingQuestion = await Question.findOne({
+      //   questionTypeId,
+      //   questionContent,
+      // });
+      // console.log("tới đây", existingQuestion);
 
-      if (existingQuestion) {
-        return resolve({
-          status: "ERROR",
-          message: "The question already exists!",
-        });
-      }
+      // if (existingQuestion) {
+      //   return resolve({
+      //     status: "ERROR",
+      //     message: "The question already exists!",
+      //   });
+      // }
 
       const checkQuestionType = await QuestionType.findById(questionTypeId);
       if (!checkQuestionType) {
@@ -493,6 +493,7 @@ const getQuestionsWithGame = async (userId) => {
         message: "Hoạt động không tồn tại",
       };
     }
+    // console.log("tpows đay");
     const activityId = activity._id;
 
     // Kiểm tra userId có hợp lệ không
@@ -525,17 +526,18 @@ const getQuestionsWithGame = async (userId) => {
     }
 
     // Lấy danh sách từ ProgressVocab của user
-    const progress = await ProgressVocab.find({ userId }).populate(
+    const progress = await ProgressVocab.find({ userId: userId }).populate(
       "vocabularyId"
     );
 
     // Lọc bỏ các phần tử có `vocabularyId === null`
     const validProgress = progress.filter((p) => p?.vocabularyId);
-
-    // Lọc các từ vựng có `hasBoolean === true`
+    // console.log("validProgress:", validProgress);
+    // Lọc các từ vựng có `hasLearned === true`
     const restrictedVocabIds = validProgress
-      .filter((p) => p.hasBoolean)
+      .filter((p) => p.hasLearned)
       .map((p) => p.vocabularyId._id.toString());
+    console.log(restrictedVocabIds);
 
     // Hạn chế xuất hiện câu hỏi có vocabularyId trong danh sách hạn chế
     questionList = questionList.filter(

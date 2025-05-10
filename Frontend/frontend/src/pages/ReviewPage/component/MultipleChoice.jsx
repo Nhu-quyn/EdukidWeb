@@ -63,10 +63,12 @@ const MultipleChoice = ({
   });
   return (
     <Wrapper>
-      <LevelBadge level={getLevelText(questionLevel)}>
-        {getLevelText(questionLevel)} - {score} điểm
-      </LevelBadge>
       <LeftSide>
+        <LevelWrapper>
+          <LevelBadge level={getLevelText(questionLevel)}>
+            {getLevelText(questionLevel)} - {score} điểm
+          </LevelBadge>
+        </LevelWrapper>
         <Question>{questionContent}</Question>
         <OptionsContainer>
           {options.map((option, index) => {
@@ -109,6 +111,12 @@ const MultipleChoice = ({
 export default MultipleChoice;
 
 // ==================== Styled Components ====================
+const LevelWrapper = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-bottom: 16px;
+`;
+
 const Wrapper = styled.div`
   display: flex;
   gap: 20px;
