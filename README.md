@@ -33,11 +33,11 @@ Client → API → Service → Database
 
 ## Setup
 
-Backend:
-npm install
-npm start
+### Backend
+npm install  
+npm start  
 
-Frontend:
-cd frontend
-npm install
-npm start
+### Frontend
+cd frontend  
+npm install  
+npm start  
