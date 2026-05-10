@@ -1,2 +1,4 @@
 node_modules/
 .env
+src/*.json
+src/project1-22f97-firebase-adminsdk-fbsvc-35b1c5ada3.json
