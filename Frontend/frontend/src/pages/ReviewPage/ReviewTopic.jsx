@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Card, Row, Col, Tooltip, message } from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Card, Row, Col, message } from "antd";
 import { useDispatch } from "react-redux";
 import { resetGame } from "../../store/gameSlice";
 import Header from "../../components/header/header";
 import styled from "styled-components";
 import ImageBackground from "../../assets/game-background.jpg";
-import ImageBackgroundPhone from "../../assets/dt.jpg";
 import Footer from "../../components/footer/footer";
 import * as TopicService from "../../services/TopicService";
 import { Typography } from "antd";
@@ -97,7 +96,6 @@ const ListTopic = () => {
   console.log(activity);
   const navigate = useNavigate();
   const [topicData, setTopicData] = useState([]);
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchTopics = async () => {
       try {
@@ -106,8 +104,6 @@ const ListTopic = () => {
         setTopicData(response.data); // Giả sử API trả về `data` chứa danh sách chủ đề
       } catch (error) {
         message.error("Không tải được danh sách chủ đề. Vui lòng thử lại.");
-      } finally {
-        setLoading(false);
       }
     };
     fetchTopics();

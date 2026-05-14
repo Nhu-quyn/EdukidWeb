@@ -1,7 +1,4 @@
 import styled from "styled-components";
-import { Card, Typography } from "antd";
-
-const { Text } = Typography;
 
 export const getLevelText = (level) => {
   // console.log(level);

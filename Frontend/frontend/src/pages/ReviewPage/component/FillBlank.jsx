@@ -20,7 +20,6 @@ const FillBlank = ({
 }) => {
   const [userInput, setUserInput] = useState(userAnswer || ""); // Sử dụng câu trả lời mặc định từ parent component
   const [feedback, setFeedback] = useState("");
-  const [isCorrect, setIsCorrect] = useState(false);
   // Kiểm tra đáp án tự động nếu isReview = true
   useEffect(() => {
     console.log("ID kiểm tra:", _id, activityId);
@@ -39,7 +38,6 @@ const FillBlank = ({
   }, [_id, isReview]);
   useEffect(() => {
     if (isEnd && !isReview) {
-      check();
       console.log("userInput", userInput);
       console.log("answer", answer);
       onUserSelect(
@@ -65,15 +63,6 @@ const FillBlank = ({
     } else {
       setFeedback(`❌ Sai! Đáp án: ${answer}`);
       // setIsCorrect(true)
-    }
-  };
-  const check = () => {
-    if (userInput.trim().toLowerCase() === answer.toLowerCase()) {
-      // setFeedback(`✅ Đúng! Đáp án: ${answer}`);
-      setIsCorrect(true);
-    } else {
-      // setFeedback(`❌ Sai! Đáp án: ${answer}`);
-      setIsCorrect(false);
     }
   };
   const handleInputChange = (e) => {
