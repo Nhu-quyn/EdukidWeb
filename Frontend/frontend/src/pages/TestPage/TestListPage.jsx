@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import * as ActivityService from "../../services/ActivityService";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import backgroundImage from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import Footer from "../../components/footer/footer";
 import Header from "../../components/header/header";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,31 +23,6 @@ const Container = styled.div`
   background-size: cover;
   backdrop-filter: brightness(1.1) contrast(1.2);
 `;
-// const Container = styled.div`
-//   background-image: url(${ImageBackground});
-//   background-size: cover;
-//   background-position: center center;
-//   background-repeat: no-repeat;
-//   background-attachment: fixed;
-//   min-height: 100vh;
-//   display: flex;
-//   flex-direction: column;
-//   @media (max-width: 1300px) {
-//     padding: 25px 10px;
-//   }
-//   @media (max-width: 920px) {
-//     padding: 25px 10px;
-//   }
-//   @media (max-width: 767px) {
-//     background-image: url(${ImageBackgroundPhone});
-
-//     background-size: contain;
-//   }
-//   @media (max-width: 480px) {
-//     padding: 25px 10px;
-//   }
-// `;
-
 const MainContent = styled.main`
   padding: 30px 40px;
   text-align: center;

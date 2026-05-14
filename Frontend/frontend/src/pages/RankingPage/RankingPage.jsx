@@ -13,7 +13,7 @@ import styled from "styled-components";
 //   FaMedal, // cho win
 // } from "react-icons/fa";
 import { message } from "antd";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import * as UserService from "../../services/UserService";
 // const players = [
 //   {
@@ -93,7 +93,7 @@ const RankingPage = () => {
         } else {
           console.error(
             "Dữ liệu không phải là mảng hoặc response sai cấu trúc",
-            response
+            response,
           );
         }
       } catch (e) {
@@ -105,7 +105,7 @@ const RankingPage = () => {
   }, []);
   const myRank = filteredPlayers.find((player) => player.userId === user?._id);
   const otherPlayers = filteredPlayers.filter(
-    (player) => player.userId !== user?._id
+    (player) => player.userId !== user?._id,
   );
 
   useEffect(() => {
@@ -193,12 +193,12 @@ const RankingCard = styled.div`
     props.isMe
       ? "#ffeaa7" // màu nổi bật
       : props.rank === 1
-      ? "gold"
-      : props.rank === 2
-      ? "silver"
-      : props.rank === 3
-      ? "#cd7f32"
-      : "white"};
+        ? "gold"
+        : props.rank === 2
+          ? "silver"
+          : props.rank === 3
+            ? "#cd7f32"
+            : "white"};
   padding: 15px;
   border-radius: 20px;
   width: ${(props) => 800 - props.rank * 20}px;
@@ -217,7 +217,7 @@ const Container = styled.div`
   text-align: center;
   font-family: "Arial", sans-serif;
   padding: 20px;
-  background: url(${ImageBackground}) no-repeat center center;
+  background: url(${backgroundImage}) no-repeat center center;
   min-height: 100vh;
   background-size: cover;
 `;

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import ImageBackground from "../../assets/game-background.jpg";
 import Footer from "../../components/footer/footer";
 import Header from "../../components/header/header";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,6 @@ import {
 import { useParams } from "react-router-dom";
 import * as ActivityService from "../../services/ActivityService";
 import * as TopicService from "../../services/TopicService";
-// import/
 
 const difficultyColors = {
   easy: "green",
@@ -41,7 +40,7 @@ const ReviewList = () => {
     try {
       const response = await ActivityService.filterActivityReviewByTopic(
         topicId,
-        userId
+        userId,
       );
       if (response.status === "OK") {
         setExercises(response.data);
@@ -59,12 +58,8 @@ const ReviewList = () => {
       const response = await TopicService.getTopic(topicId);
       console.log("tới đây");
       if (response.status === "OK") {
-        // setExercises(response.data);
         setTopic(response.data);
       }
-      // else {
-      //   message.error("Đã có lỗi khi lấy danh bài tập");
-      // }
 
       console.log(response.data);
     } catch (e) {
@@ -86,10 +81,6 @@ const ReviewList = () => {
     <Container>
       <Header />
       <MainContent>
-        {/* <BackButton onClick={() => navigate("/review")}>
-          <ArrowLeftOutlined />
-          <span>Trở về</span>
-        </BackButton> */}
         <Title>
           Danh sách bài tập ôn tập - Chủ đề:
           {topic ? topic.topicName : "Đang tải..."}
@@ -115,7 +106,7 @@ const ReviewList = () => {
                         ? exercise.activityDescription.length > 30
                           ? `${exercise.activityDescription.substring(
                               0,
-                              30
+                              30,
                             )}...`
                           : exercise.activityDescription
                         : "Không có mô tả"}
@@ -213,7 +204,9 @@ const BackButton = styled(Button)`
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: background 0.3s, transform 0.2s;
+  transition:
+    background 0.3s,
+    transform 0.2s;
 
   &:hover {
     background: #e91e63;

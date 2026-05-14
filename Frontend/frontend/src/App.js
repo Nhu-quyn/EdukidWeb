@@ -9,20 +9,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { routes } from "./routes";
 import { useSelector } from "react-redux";
-// Lấy thông tin người dùng từ Redux
 
-// // Component kiểm tra quyền truy cập
-// const PrivateRoute = ({ children, isLogged, isAdmin }) => {
-//   if (!isLogged) {
-//     return <Navigate to="/" />;
-//   }
-
-//   if (isAdmin && !isLogged) {
-//     return <Navigate to="/" />;
-//   }
-
-//   return children;
-// };
 const PrivateRoute = ({ children, isLogged, isAdminOnly }) => {
   const user = useSelector((state) => state.user?.user);
   const isAdmin = user?.isAdmin;

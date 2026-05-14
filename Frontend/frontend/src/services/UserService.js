@@ -4,6 +4,7 @@ import { auth, provider } from "./firebaseConfig";
 const api_user = `${process.env.REACT_APP_API}/user`;
 
 export const loginUser = async (data) => {
+  console.log("Đang gửi request đến:", `${api_user}/sign-in`);
   try {
     console.log("Đang gửi request đến:", `${api_user}/sign-in`);
     const response = await axios.post(`${api_user}/sign-in`, data);
@@ -25,7 +26,6 @@ export const registerUser = async (data) => {
 };
 export const getUser = async (id) => {
   try {
-    // console.log("Đang gửi request đến:", `${api_user}/sign-up`);
     const response = await axios.get(`${api_user}/get-user/${id}`);
     return response.data;
   } catch (error) {
@@ -44,8 +44,6 @@ export const updateUser = async (id, data) => {
     throw error;
   }
 };
-// router.get("/get-user/:id", authMiddleWare, userController.getUserById);
-// Hàm đăng nhập Google và gửi token lên backend
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
@@ -60,7 +58,7 @@ export const signInWithGoogle = async () => {
           "Content-Type": "application/json",
           token: `Bearer ${idToken}`, // Truyền token vào headers
         },
-      }
+      },
     );
 
     return response.data; // Trả về dữ liệu từ backend
@@ -74,7 +72,7 @@ export const getCategory = async (name) => {
       `${process.env.REACT_APP_API}/activity/category`,
       {
         categoryName: name,
-      }
+      },
     );
 
     return response.data;
@@ -86,7 +84,7 @@ export const getCategory = async (name) => {
 export const getActivityByCategory = async (id) => {
   try {
     const response = await axios.get(
-      `${process.env.REACT_APP_API}/activity/get-all/${id}`
+      `${process.env.REACT_APP_API}/activity/get-all/${id}`,
     );
 
     return response.data;
@@ -114,11 +112,11 @@ export const updateLearningProgressGame = async (userId, answer_questions) => {
     console.log(requestData);
     console.log(
       "Đang gửi request đến:",
-      `${api_user}/update-learning-progress`
+      `${api_user}/update-learning-progress`,
     );
     const response = await axios.post(
       `${api_user}/update-learning-progress`,
-      requestData
+      requestData,
     );
     console.log(response.data);
     return response.data;
@@ -130,7 +128,7 @@ export const updateLearningProgressGame = async (userId, answer_questions) => {
 export const updateLearningProgressActivity = async (
   activityId,
   userId,
-  answerQuestions
+  answerQuestions,
 ) => {
   try {
     console.log(answerQuestions);
@@ -142,11 +140,11 @@ export const updateLearningProgressActivity = async (
     console.log(requestData);
     console.log(
       "Đang gửi request đến:",
-      `${api_user}/update-learning-progress`
+      `${api_user}/update-learning-progress`,
     );
     const response = await axios.post(
       `${api_user}/update-learning-progress`,
-      requestData
+      requestData,
     );
     console.log(response.data);
     return response.data;
@@ -181,7 +179,7 @@ export const updatePassword = async (id, currentPassword, newPassword) => {
       currentPassword,
       newPassword,
     };
-    // console.log("Đang gửi request đến:", `${api_user}/sign-up`);
+
     const response = await axios.put(`${api_user}/update-password/${id}`, data);
     return response.data;
   } catch (error) {

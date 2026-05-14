@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Typography, Button, Image, Modal } from "antd";
+import { Typography, Button, Image, Modal, message } from "antd";
 import Header from "../../components/header/header";
 import Footer from "../../components/footer/footer";
 import styled from "styled-components";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import * as VocabularyService from "../../services/VocabularyService";
 
 const getYoutubeVideoId = (url) => {
   const match = url.match(
-    /(?:youtu\.be\/|v=|\/v\/|vi\/|\/embed\/|\/watch\?v=)([^#&?]*).*/
+    /(?:youtu\.be\/|v=|\/v\/|vi\/|\/embed\/|\/watch\?v=)([^#&?]*).*/,
   );
   return match && match[1].length === 11 ? match[1] : null;
 };
@@ -33,7 +33,7 @@ const VocabularyTopic = () => {
           setWords(response.data);
         }
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
+        message.error("Không tải được dữ liệu. Vui lòng thử lại sau.");
       } finally {
         setLoading(false);
       }
@@ -67,7 +67,7 @@ const VocabularyTopic = () => {
         <VideoContainer>
           <StyledIframe
             src={`https://www.youtube.com/embed/${getYoutubeVideoId(
-              topic.topicVideo
+              topic.topicVideo,
             )}`}
             title={topic.topicName}
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -167,7 +167,7 @@ export default VocabularyTopic;
 
 // Styled Components
 const Container = styled.div`
-  background-image: url(${ImageBackground});
+  background-image: url(${backgroundImage});
   background-size: cover;
   background-position: center;
   min-height: 100vh;
@@ -261,7 +261,10 @@ const WordCard = styled.div`
   border-radius: 8px;
   background: rgb(235, 226, 226);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
   min-width: 140px;
   max-width: 180px;
   margin: 10px;

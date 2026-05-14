@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../../store/userSlice";
 import * as UserService from "../../services/UserService";
-import backgroundImage from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import styled from "styled-components";
 
 const { Content } = Layout;
@@ -103,7 +103,7 @@ const ProfilePage = () => {
           openNotification(
             "success",
             "Thành công!",
-            "Cập nhật ảnh đại diện thành công!"
+            "Cập nhật ảnh đại diện thành công!",
           );
           await fetchUser();
         }
@@ -128,7 +128,7 @@ const ProfilePage = () => {
           openNotification(
             "error",
             "Lỗi!",
-            "Email phụ huynh không hợp lệ. Vui lòng kiểm tra lại!"
+            "Email phụ huynh không hợp lệ. Vui lòng kiểm tra lại!",
           );
           return;
         }
@@ -139,7 +139,7 @@ const ProfilePage = () => {
         openNotification(
           "success",
           "Thành công!",
-          "Cập nhật thông tin thành công!"
+          "Cập nhật thông tin thành công!",
         );
         await fetchUser(); // Lấy thông tin mới nhất
         // dispatch(setUser(updatedUser.data)); // Cập nhật lại Redux
@@ -155,7 +155,7 @@ const ProfilePage = () => {
         openNotification(
           "warning",
           "Cảnh báo!",
-          "Mật khẩu mới phải có ít nhất 8 ký tự!"
+          "Mật khẩu mới phải có ít nhất 8 ký tự!",
         );
         return;
       }
@@ -164,7 +164,7 @@ const ProfilePage = () => {
         openNotification(
           "error",
           "Lỗi!",
-          "Mật khẩu mới và xác nhận không khớp!"
+          "Mật khẩu mới và xác nhận không khớp!",
         );
         return;
       }
@@ -175,14 +175,14 @@ const ProfilePage = () => {
       const updatePassword = await UserService.updatePassword(
         userId,
         currentPassword,
-        newPassword
+        newPassword,
       );
 
       if (updatePassword.status === "OK") {
         openNotification(
           "success",
           "Thành công!",
-          "Cập nhật mật khẩu thành công!"
+          "Cập nhật mật khẩu thành công!",
         );
         await fetchUser();
       } else {

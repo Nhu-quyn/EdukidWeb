@@ -13,7 +13,7 @@ import { Modal, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import * as QuestionService from "../../services/QuestionService"; // Import service
 import * as UserService from "../../services/UserService";
-import ImageBackgroundGame from "../../assets/backgroundgame2.jpg";
+import backgroundImageGame from "../../assets/game-background.jpg";
 import { setRank, addAnswerWithLogin } from "../../store/gameSlice";
 import music from "../../mp3/kids-happy-music-320636.mp3";
 
@@ -48,7 +48,7 @@ const Container = styled.div`
   padding: 0;
   margin: 0;
   overflow: hidden; /* Ngăn trượt nội dung */
-  background-image: url(${ImageBackgroundGame});
+  background-image: url(${backgroundImageGame});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -138,7 +138,7 @@ const GamePage = () => {
           console.log("Gọi API với topicId:", { userId, topicId });
           response = await QuestionService.getQuestionsWithGameByTopic(
             userId,
-            topicId
+            topicId,
           );
         } else {
           console.log("Gọi API không có topicId:", { userId });
@@ -210,7 +210,7 @@ const GamePage = () => {
       console.log(answer_questions);
       const response = await UserService.updateLearningProgressGame(
         userId,
-        answer_questions
+        answer_questions,
       );
       if (response.status !== "OK") {
         message.error("Đã có lỗi xảy ra khi cập nhật tiến trình");
@@ -241,7 +241,7 @@ const GamePage = () => {
   const handleSelectAnswer = (questionId, selectedAnswer, isCorrect, score) => {
     setSelectedAnswer(selectedAnswer);
     dispatch(
-      addAnswerWithLogin({ questionId, selectedAnswer, isCorrect, score })
+      addAnswerWithLogin({ questionId, selectedAnswer, isCorrect, score }),
     );
   };
 

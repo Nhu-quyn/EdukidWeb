@@ -14,7 +14,7 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import ImageBackgroundGame from "../../assets/backgroundgame2.jpg";
+import ImageBackgroundGame from "../../assets/game-background.jpg";
 import { useParams } from "react-router-dom";
 const fadeIn = keyframes`
   from {
@@ -210,8 +210,8 @@ const EndGamePage = () => {
         {location.pathname.includes("end-review")
           ? "Kết Thúc Ôn Tập"
           : location.pathname.includes("end-test")
-          ? "Kết Thúc Bài Kiểm Tra"
-          : "Kết Thúc Trò Chơi"}{" "}
+            ? "Kết Thúc Bài Kiểm Tra"
+            : "Kết Thúc Trò Chơi"}{" "}
         🎉
       </Title>
       <StatsContainer>

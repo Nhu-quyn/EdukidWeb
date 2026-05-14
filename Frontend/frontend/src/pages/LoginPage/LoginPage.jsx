@@ -9,7 +9,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import logoEdukids from "../../assets/logoEdukid.jpg";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import * as UserService from "../../services/UserService";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
@@ -18,7 +18,7 @@ import { signInWithGoogle } from "../../services/UserService";
 const { Title } = Typography;
 
 const Container = styled.div`
-  background: url(${ImageBackground}) no-repeat center center;
+  background: url(${backgroundImage}) no-repeat center center;
   background-attachment: fixed;
   min-height: 100vh;
   display: flex;

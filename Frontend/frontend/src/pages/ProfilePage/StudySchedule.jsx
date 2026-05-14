@@ -29,7 +29,7 @@ import * as LearningGoalService from "../../services/LearningGoalService";
 import dayjs from "dayjs";
 import Header from "../../components/header/header";
 import Footer from "../../components/footer/footer";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import WelcomeImage from "../../assets/welcome.jpg";
 import { ConfigConsumer } from "antd/es/config-provider";
 
@@ -57,7 +57,7 @@ const MainContainer = styled.div`
   border: 3px solid #ffcc00;
 `;
 const Container = styled.div`
-  background: url(${ImageBackground}) no-repeat center center;
+  background: url(${backgroundImage}) no-repeat center center;
   background-attachment: fixed;
   min-height: 100vh;
   // padding: 20px;
@@ -182,7 +182,7 @@ const StudySchedule = () => {
         console.log("Editing goal:", editing);
         response = await LearningGoalService.updateLearningGoal(
           editing._id,
-          editingData
+          editingData,
         );
       } else {
         response = await LearningGoalService.createLearningGoal(newGoal);
@@ -192,7 +192,7 @@ const StudySchedule = () => {
         message.success(
           editing
             ? "Cập nhật lịch học thành công!"
-            : "Mục tiêu học đã được lưu!"
+            : "Mục tiêu học đã được lưu!",
         );
         fetchSchedules();
         setDate(null);
@@ -215,7 +215,7 @@ const StudySchedule = () => {
       setLoading(true);
       const response = await LearningGoalService.updateStatus(
         id,
-        isActive ? "active" : "paused"
+        isActive ? "active" : "paused",
       );
       if (response.status === "OK") {
         fetchSchedules();
@@ -241,7 +241,7 @@ const StudySchedule = () => {
               {schedules.length > 0 ? (
                 <List
                   dataSource={schedules.sort((a, b) =>
-                    dayjs(a.startDate).diff(dayjs(b.startDate))
+                    dayjs(a.startDate).diff(dayjs(b.startDate)),
                   )}
                   loading={loading}
                   renderItem={(item) => (

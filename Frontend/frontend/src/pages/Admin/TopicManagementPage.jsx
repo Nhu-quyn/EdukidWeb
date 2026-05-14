@@ -9,39 +9,6 @@ import AddTopicForm from "../../components/forms/AddTopicForm";
 import * as TopicService from "../../services/TopicService";
 import TopicTable from "../../components/table/TopicTable";
 
-// const PageContainer = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   min-height: 100vh;
-//   background: #f4f6f9;
-//   font-family: "Fredoka", sans-serif;
-// `;
-
-// const ContentWrapper = styled.div`
-//   display: flex;
-//   flex: 1;
-// `;
-
-// const MainContent = styled.div`
-//   flex: 1;
-//   padding: 32px;
-//   background: #fff;
-//   border-radius: 12px;
-//   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-// `;
-
-// const HeaderSection = styled.div`
-//   width: 100%;
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-//   padding: 0px 0;
-//   border-bottom: 2px solid #ddd;
-// `;
-
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -179,7 +146,7 @@ const TopicManagementPage = () => {
         message.success(
           editingTopic
             ? "Cập nhật chủ đề thành công!"
-            : "Thêm chủ đề thành công!"
+            : "Thêm chủ đề thành công!",
         );
         setIsModalOpen(false);
         setEditingTopic(null);

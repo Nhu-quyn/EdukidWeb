@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Row, Col, Tooltip } from "antd";
+import { Card, Row, Col, Tooltip, Spin, message } from "antd";
 import Header from "../../components/header/header";
 import styled from "styled-components";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
-import ImageBackgroundPhone from "../../assets/dt.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
+import backgroundImagePhone from "../../assets/dt.jpg";
 import Footer from "../../components/footer/footer";
 // import { topicData } from "./data";
 import * as TopicService from "../../services/TopicService";
@@ -86,13 +86,25 @@ const VocabularyList = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("idle");
+
   useEffect(() => {
     const fetchTopics = async () => {
+      setLoading(true);
+      setStatus("loading");
       try {
         const response = await TopicService.getAllTopic();
-        setTopics(response.data); // Giả sử API trả về `data` chứa danh sách chủ đề
+        const topicData = Array.isArray(response?.data) ? response.data : [];
+
+        if (topicData.length === 0) {
+          setStatus("empty");
+        } else {
+          setStatus("success");
+        }
+        setTopics(topicData);
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
+        message.error("Không tải được chủ đề. Vui lòng thử lại sau.");
+        setStatus("error");
       } finally {
         setLoading(false);
       }
@@ -108,27 +120,47 @@ const VocabularyList = () => {
       <Container>
         <Header title="Vocabulary List" />
         <MainContent>
-          <Row gutter={[24, 24]} justify="center" style={{ marginTop: "20px" }}>
-            {topics.map((topic) => (
-              <Col key={topic._id} xs={12} sm={12} md={8} lg={6}>
-                <TopicCard
-                  hoverable
-                  onClick={() => handleTopicClick(topic._id)}
-                >
-                  <Tooltip
-                    title={topic.topicDescription || "Không có mô tả"}
-                    placement="top"
-                    mouseEnterDelay={0.2}
+          {status === "loading" ? (
+            <StatusWrapper>
+              <Spin tip="Đang tải chủ đề...">
+                <div style={{ minHeight: 60 }} />
+              </Spin>
+            </StatusWrapper>
+          ) : status === "error" ? (
+            <StatusWrapper>
+              Không thể tải chủ đề. Vui lòng kiểm tra kết nối hoặc thử lại.
+            </StatusWrapper>
+          ) : status === "empty" ? (
+            <StatusWrapper>
+              Chưa có chủ đề nào. Vui lòng quay lại sau.
+            </StatusWrapper>
+          ) : (
+            <Row
+              gutter={[24, 24]}
+              justify="center"
+              style={{ marginTop: "20px" }}
+            >
+              {topics.map((topic) => (
+                <Col key={topic._id} xs={12} sm={12} md={8} lg={6}>
+                  <TopicCard
+                    hoverable
+                    onClick={() => handleTopicClick(topic._id)}
                   >
-                    <CardImage alt={topic.topicName} src={topic.topicImage} />
-                    <CardContent>
-                      <TopicTitle>{topic.topicName}</TopicTitle>
-                    </CardContent>
-                  </Tooltip>
-                </TopicCard>
-              </Col>
-            ))}
-          </Row>
+                    <Tooltip
+                      title={topic.topicDescription || "Không có mô tả"}
+                      placement="top"
+                      mouseEnterDelay={0.2}
+                    >
+                      <CardImage alt={topic.topicName} src={topic.topicImage} />
+                      <CardContent>
+                        <TopicTitle>{topic.topicName}</TopicTitle>
+                      </CardContent>
+                    </Tooltip>
+                  </TopicCard>
+                </Col>
+              ))}
+            </Row>
+          )}
         </MainContent>
       </Container>
       <Footer />
@@ -139,7 +171,7 @@ const VocabularyList = () => {
 export default VocabularyList;
 
 const Container = styled.div`
-  background-image: url(${ImageBackground});
+  background-image: url(${backgroundImage});
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -154,7 +186,7 @@ const Container = styled.div`
     padding: 25px 10px;
   }
   @media (max-width: 767px) {
-    background-image: url(${ImageBackgroundPhone});
+    background-image: url(${backgroundImagePhone});
 
     background-size: contain;
   }
@@ -182,6 +214,16 @@ const MainContent = styled.main`
   @media (max-width: 480px) {
     padding: 25px 10px;
   }
+`;
+
+const StatusWrapper = styled.div`
+  width: 100%;
+  padding: 60px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  color: #555;
 `;
 
 const CardContent = styled.div`

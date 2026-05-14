@@ -2,21 +2,10 @@ import axios from "axios";
 
 const api_activity = `${process.env.REACT_APP_API}/activity`;
 
-// export const createActivity = async (data) => {
-//   console.log("API URL:", `$${api_activity}/create`);
-//   try {
-//     const response = await axios.post(`${api_activity}/create`, data);
-//     console.log(response);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Lỗi từ API:", error.response?.data || error.message);
-//     throw error;
-//   }
-// };
 export const deleteActivity = async (id) => {
   try {
     const response = await axios.delete(
-      `${api_activity}/delete-activity/${id}`
+      `${api_activity}/delete-activity/${id}`,
     );
     console.log("toi day " + response.data);
     return response.data;
@@ -32,7 +21,7 @@ export const updateActivity = async (id, data) => {
     console.log("tới đây");
     const response = await axios.put(
       `${api_activity}/update-activity/${id}`,
-      data
+      data,
     );
     console.log(response.data);
     return response.data;
@@ -77,7 +66,7 @@ export const addQuestionToGame = async (questionIds) => {
     const gameId = dataGame.data[0]._id; // Lấy game đầu tiên trong danh sách
     const response = await axios.post(
       `${api_activity}/add-questions/${gameId}`,
-      { questionIds }
+      { questionIds },
     );
 
     // console.log("toi day ", response.data);
@@ -124,7 +113,7 @@ export const addQuestionToActivity = async (questionIds, activityId) => {
   try {
     const response = await axios.post(
       `${api_activity}/add-questions/${activityId}`,
-      { questionIds }
+      { questionIds },
     );
 
     // console.log("toi day ", response.data);
@@ -170,7 +159,7 @@ export const filterActivityReviewByTopic = async (topicId, userId) => {
     // console.log("activities:", activities); // Kiểm tra dữ liệu trước khi gửi
     const response = await axios.post(
       `${api_activity}/filter-by-topic/${topicId}`,
-      { activities, userId } // Truyền activities vào body
+      { activities, userId }, // Truyền activities vào body
     );
     // console.log(response);
     return response.data;
@@ -186,7 +175,7 @@ export const testByUser = async (userId) => {
     // const activities = activitiesResponse?.data; // Tránh lỗi nếu data undefined
 
     const response = await axios.get(
-      `${api_activity}/test/${userId}`
+      `${api_activity}/test/${userId}`,
       // Truyền activities vào body
     );
     return response.data;
@@ -198,7 +187,7 @@ export const testByUser = async (userId) => {
 export const countTest = async (userId) => {
   try {
     const response = await axios.get(
-      `${api_activity}/count-test/${userId}`
+      `${api_activity}/count-test/${userId}`,
       // Truyền activities vào body
     );
     return response.data;

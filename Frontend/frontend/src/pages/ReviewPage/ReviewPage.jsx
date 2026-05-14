@@ -23,7 +23,7 @@ import ImageWriteWord from "./component/ImageWriteWord";
 import ImageChooseSound from "./component/ImageChooseSound";
 import ListenAndTranslate from "./component/ListenAndWrite"; // New component
 import WordListenSpeak from "./component/WordListenSpeak"; // New component
-import ImageBackgroundGame from "../../assets/backgroundgame2.jpg";
+import backgroundImageGame from "../../assets/game-background.jpg";
 import CountdownTimer from "./CountdownTimer";
 import * as QuestionService from "../../services/QuestionService";
 import {
@@ -42,7 +42,7 @@ const Container = styled.div`
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-image: url(${ImageBackgroundGame});
+  background-image: url(${backgroundImageGame});
   background-size: cover;
   background-position: center;
 `;
@@ -204,7 +204,9 @@ const AnswerCircle = styled(motion.button)`
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
   cursor: pointer;
   background-color: ${(props) => (props.$selected ? "#66bb6a" : "#29b6f6")};
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
 
   &:hover {
     background-color: ${(props) => (props.$selected ? "#43a047" : "#0288d1")};
@@ -498,7 +500,7 @@ const ReviewPage = () => {
   console.log(activity);
   const userId = useSelector((state) => state.user?.user?._id);
   const answerQuestions = useSelector(
-    (state) => state.activity?.answer_questions || []
+    (state) => state.activity?.answer_questions || [],
   );
   // const [answerQuestions, setAnswerQuestions] = useState([]);
   const [testTimes, setTestTimes] = useState(0);
@@ -544,9 +546,8 @@ const ReviewPage = () => {
     const fetchExercises = async () => {
       try {
         setLoading(true);
-        const response = await QuestionService.getQuestionByActivity(
-          activityId
-        );
+        const response =
+          await QuestionService.getQuestionByActivity(activityId);
         setExercises(response.data);
         if (isTestPage) setTestTimes(response.testTimes);
         console.log(response);
@@ -563,7 +564,7 @@ const ReviewPage = () => {
     type,
     selectedAnswer,
     isCorrect,
-    score
+    score,
   ) => {
     // console.log("Dữ liệu gửi đi:", {
     //   questionId,
@@ -608,7 +609,7 @@ const ReviewPage = () => {
         selectedAnswer,
         isCorrect,
         score,
-      })
+      }),
     );
     // }
     // }
@@ -640,7 +641,7 @@ const ReviewPage = () => {
       const response = await UserService.updateLearningProgressActivity(
         activityId,
         userId,
-        answerQuestions
+        answerQuestions,
       );
       if (response.status !== "OK") {
         message.error("Đã có lỗi xảy ra khi cập nhật tiến trình");
@@ -742,7 +743,7 @@ const ReviewPage = () => {
                 const userAnswer = answerQuestions.find(
                   (ans) =>
                     ans.questionId === exercise._id &&
-                    ans.type === questionTypeId
+                    ans.type === questionTypeId,
                 )?.selectedAnswer; // Chỉ lấy giá trị `selectedAnswer`
 
                 return (

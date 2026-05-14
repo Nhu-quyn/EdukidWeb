@@ -8,13 +8,12 @@ const cors = require("cors");
 const admin = require("firebase-admin");
 
 // Khởi tạo Firebase Admin
-// const serviceAccount = require("./project1-22f97-firebase-adminsdk-fbsvc-35b1c5ada3.json"); // File tải từ Firebase Console
 admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.TYPE,
     project_id: process.env.PROJECT_ID,
     private_key_id: process.env.PRIVATE_KEY_ID,
-    private_key:process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
+    private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
     client_email: process.env.CLIENT_EMAIL,
     client_id: process.env.CLIENT_ID,
     auth_uri: process.env.AUTH_URI,
@@ -30,7 +29,6 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-// app.use(cors());
 app.use(express.json({ limit: "50mb" })); // Tăng giới hạn payload
 app.use(express.urlencoded({ limit: "50mb", extended: true })); // Tăng giới hạn cho form data
 

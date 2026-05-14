@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Card, Row, Col, Tooltip } from "antd";
+import { Card, Row, Col, Tooltip, message } from "antd";
 import { useDispatch } from "react-redux";
 import { resetGame } from "../../store/gameSlice";
 import Header from "../../components/header/header";
 import styled from "styled-components";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import ImageBackground from "../../assets/game-background.jpg";
 import ImageBackgroundPhone from "../../assets/dt.jpg";
 import Footer from "../../components/footer/footer";
-// import { topicData } from "./data";
 import * as TopicService from "../../services/TopicService";
 import { Typography } from "antd";
 
@@ -19,7 +18,9 @@ const TopicCard = styled(Card)`
   height: 180px;
   border-radius: 16px; /* Bo tròn góc thay vì hình tròn */
   background: white;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   padding: 16px;
   display: flex;
@@ -104,7 +105,7 @@ const ListTopic = () => {
         console.log(response);
         setTopicData(response.data); // Giả sử API trả về `data` chứa danh sách chủ đề
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
+        message.error("Không tải được danh sách chủ đề. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -112,8 +113,6 @@ const ListTopic = () => {
     fetchTopics();
   }, []);
 
-  // activity = "review";
-  // const handleTopicClick = (topicId) => {
   const handleTopicClick = (topicId) => {
     console.log(topicId);
     if (activity === "game") {

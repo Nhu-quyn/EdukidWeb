@@ -9,7 +9,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import logoEdukids from "../../assets/logoEdukid.jpg";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import * as UserService from "../../services/UserService";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
@@ -19,7 +19,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const Container = styled.div`
-  background: url(${ImageBackground}) no-repeat center center;
+  background: url(${backgroundImage}) no-repeat center center;
   background-attachment: fixed;
   min-height: 100vh;
   display: flex;
@@ -182,7 +182,7 @@ const RegisterPage = () => {
     dayOptions.push(
       <Option key={i} value={i}>
         {i}
-      </Option>
+      </Option>,
     );
   }
 
@@ -192,7 +192,7 @@ const RegisterPage = () => {
     monthOptions.push(
       <Option key={i} value={i}>
         {i}
-      </Option>
+      </Option>,
     );
   }
 
@@ -203,7 +203,7 @@ const RegisterPage = () => {
     yearOptions.push(
       <Option key={i} value={i}>
         {i}
-      </Option>
+      </Option>,
     );
   }
 

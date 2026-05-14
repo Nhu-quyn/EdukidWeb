@@ -179,7 +179,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux"; // Import useDispatch
 import styled, { keyframes } from "styled-components";
-import ImageBackgroundGame from "../../assets/backgroundgame2.jpg";
+import backgroundImageGame from "../../assets/game-background.jpg";
 import { FaHome, FaTrophy, FaList } from "react-icons/fa";
 import { resetGame } from "../../store/gameSlice";
 const colors = [
@@ -198,7 +198,7 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-image: url(${ImageBackgroundGame});
+  background-image: url(${backgroundImageGame});
   background-size: cover;
   background-position: center;
   text-align: center;

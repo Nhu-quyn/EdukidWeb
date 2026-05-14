@@ -13,7 +13,7 @@ import {
 import Header from "../../components/header/header";
 import Footer from "../../components/footer/footer";
 import styled from "styled-components";
-import ImageBackground from "../../assets/backgroundgame2.jpg";
+import backgroundImage from "../../assets/game-background.jpg";
 import WelcomeImage from "../../assets/welcome.jpg";
 import { Fireworks } from "fireworks-js";
 // import dynamic from "next/dynamic";
@@ -231,7 +231,7 @@ const HomePage = () => {
 
 // Styled Components
 const Container = styled.div`
-  background: url(${ImageBackground}) no-repeat center center;
+  background: url(${backgroundImage}) no-repeat center center;
   background-attachment: fixed;
 
   min-height: 100vh;
@@ -343,7 +343,10 @@ const FeatureCard = styled.a`
   text-decoration: none;
   color: #333;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s,
+    background 0.3s;
 
   &:hover {
     transform: scale(1.05);
@@ -440,7 +443,9 @@ const StyledLink = styled(Link)`
   color: #ff4081;
   font-weight: bold;
   text-decoration: none;
-  transition: color 0.3s ease, transform 0.2s;
+  transition:
+    color 0.3s ease,
+    transform 0.2s;
 
   &:hover {
     color: #e91e63;
@@ -486,7 +491,9 @@ const RankingButton = styled(Link)`
   font-size: 60px;
   color: #ffc107;
   z-index: 10;
-  transition: transform 0.3s ease, color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
 
   &:hover {
     transform: scale(1.2);
