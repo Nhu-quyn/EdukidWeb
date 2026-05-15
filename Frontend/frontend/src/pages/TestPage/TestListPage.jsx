@@ -8,9 +8,7 @@ import Footer from "../../components/footer/footer";
 import Header from "../../components/header/header";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addAnswerWithLogin,
   resetActivity,
-  setRank,
 } from "../../store/activitySlice";
 
 const Container = styled.div`
@@ -22,26 +20,6 @@ const Container = styled.div`
   flex-direction: column;
   background-size: cover;
   backdrop-filter: brightness(1.1) contrast(1.2);
-`;
-const MainContent = styled.main`
-  padding: 30px 40px;
-  text-align: center;
-  background-color: rgba(241, 241, 241, 0.9);
-  max-width: 1200px;
-  margin: auto;
-  // flex: 1;
-  border-radius: 12px;
-  @media (max-width: 1300px) {
-    padding: 25px 10px;
-  }
-  @media (max-width: 920px) {
-    background-color: transparent;
-  }
-  @media (max-width: 768px) {
-  }
-  @media (max-width: 480px) {
-    padding: 25px 10px;
-  }
 `;
 
 const Wrapper = styled.div`
@@ -153,7 +131,7 @@ const TestListPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 

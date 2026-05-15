@@ -85,12 +85,10 @@ const CardImage = styled.img`
 const VocabularyList = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("idle");
 
   useEffect(() => {
     const fetchTopics = async () => {
-      setLoading(true);
       setStatus("loading");
       try {
         const response = await TopicService.getAllTopic();
@@ -105,10 +103,9 @@ const VocabularyList = () => {
       } catch (error) {
         message.error("Không tải được chủ đề. Vui lòng thử lại sau.");
         setStatus("error");
-      } finally {
-        setLoading(false);
       }
     };
+
     fetchTopics();
   }, []);
   const handleTopicClick = (topicId) => {

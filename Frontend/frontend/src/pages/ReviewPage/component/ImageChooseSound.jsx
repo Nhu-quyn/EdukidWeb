@@ -20,7 +20,6 @@ const ImageChooseSound = ({
 }) => {
   const [selected, setSelected] = useState("");
   const [hasChecked, setHasChecked] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
 
   // useEffect(() => {
   //   const savedSelected = localStorage.getItem(`selected-${_id}-${activityId}`);
@@ -232,7 +231,9 @@ const OptionButton = styled.button`
   width: 80px;
   height: 80px;
   cursor: pointer;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
   &:hover {
     background-color: ${(props) =>
       props.optionStyle === "default" ? "#f8f9fa" : ""};
